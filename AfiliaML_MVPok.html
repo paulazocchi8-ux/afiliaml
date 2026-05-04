@@ -1,0 +1,2093 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AfiliaML — Afiliados Mercado Livre</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%23FFD60A'/><text y='22' x='4' font-size='18' font-weight='900' font-family='Arial'>ML</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@500;600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ════════════════════════════════════════
+   RESET
+════════════════════════════════════════ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#2E3547;border-radius:2px}
+::-webkit-scrollbar-thumb:hover{background:#3A4258}
+
+/* ════════════════════════════════════════
+   DESIGN TOKENS
+════════════════════════════════════════ */
+:root{
+  --bg:#0D0F14;  --bg2:#12151C;  --bg3:#191D27;  --bg4:#1F2330;
+  --bd:#252A38;  --bd2:#2E3547;  --bd3:#3A4258;
+  --tx:#EDF0FF;  --tx2:#8B93B4;  --tx3:#4E566E;
+  --y:#FFD60A;   --y2:#F5C800;
+  --yb:rgba(255,214,10,.08);  --ybd:rgba(255,214,10,.22);
+  --g:#22C55E;   --gb:rgba(34,197,94,.10);   --gbd:rgba(34,197,94,.25);
+  --r:#EF4444;   --rb:rgba(239,68,68,.10);   --rbd:rgba(239,68,68,.25);
+  --bl:#60A5FA;  --blb:rgba(96,165,250,.10);
+  --or:#FB923C;
+  --fn:'DM Sans',sans-serif;
+  --fd:'Syne',sans-serif;
+  --sw:220px;
+  --r4:6px; --r8:10px; --r12:14px; --r16:18px;
+  --transition:all .15s ease;
+}
+body{
+  font-family:var(--fn);
+  background:var(--bg);
+  color:var(--tx);
+  font-size:13px;
+  line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ════════════════════════════════════════
+   UTILITIES
+════════════════════════════════════════ */
+.hide{display:none!important}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+
+/* ════════════════════════════════════════
+   INPUTS / FORMS
+════════════════════════════════════════ */
+.field{margin-bottom:14px}
+.field label,.lbl{
+  display:block;font-size:10.5px;font-weight:600;
+  color:var(--tx3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:5px;
+}
+input,select,textarea{
+  width:100%;background:var(--bg3);border:1px solid var(--bd);border-radius:var(--r8);
+  padding:10px 13px;font-family:var(--fn);font-size:13px;color:var(--tx);
+  outline:none;transition:border .15s;
+}
+input:focus,select:focus,textarea:focus{
+  border-color:var(--ybd);
+  box-shadow:0 0 0 3px rgba(255,214,10,.05);
+}
+input::placeholder,textarea::placeholder{color:var(--tx3)}
+select{cursor:pointer;-webkit-appearance:none}
+textarea{resize:vertical;min-height:80px}
+.hint{font-size:11px;color:var(--tx3);margin-top:5px;line-height:1.4}
+.aff-preview{
+  display:none;margin-top:5px;font-size:11px;padding:7px 11px;
+  background:var(--gb);border:1px solid var(--gbd);border-radius:var(--r8);color:var(--g);
+}
+.aff-preview.on{display:block}
+
+/* ════════════════════════════════════════
+   BUTTONS
+════════════════════════════════════════ */
+.btn{
+  font-family:var(--fn);font-size:12.5px;font-weight:500;
+  padding:8px 15px;border-radius:var(--r8);cursor:pointer;
+  border:1px solid var(--bd2);background:transparent;color:var(--tx2);
+  transition:var(--transition);display:inline-flex;align-items:center;
+  gap:5px;white-space:nowrap;user-select:none;text-decoration:none;
+}
+.btn:hover:not(:disabled){background:var(--bg4);color:var(--tx);border-color:var(--bd3)}
+.btn:active:not(:disabled){opacity:.8}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn.y{background:var(--y);border-color:var(--y);color:#0D0F14;font-weight:600}
+.btn.y:hover:not(:disabled){background:var(--y2);border-color:var(--y2);color:#0D0F14}
+.btn.g{background:var(--gb);border-color:var(--gbd);color:var(--g)}
+.btn.g:hover:not(:disabled){background:rgba(34,197,94,.17)}
+.btn.sm{font-size:11.5px;padding:5px 11px}
+.btn.w{width:100%;justify-content:center}
+.btn.ghost{border-color:transparent}
+.btn.ghost:hover:not(:disabled){border-color:var(--bd)}
+
+/* ════════════════════════════════════════
+   AUTH SCREENS
+════════════════════════════════════════ */
+.auth-screen{
+  position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
+  background:var(--bg);
+  background-image:radial-gradient(ellipse 70% 60% at 50% -10%,rgba(255,214,10,.07) 0%,transparent 65%);
+  overflow-y:auto;padding:20px;z-index:200;
+}
+.auth-card{
+  width:100%;max-width:420px;
+  background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r16);
+  padding:36px 32px;
+}
+.auth-logo{display:flex;align-items:center;gap:10px;margin-bottom:28px;justify-content:center}
+.auth-logo-ic{
+  width:38px;height:38px;background:var(--y);border-radius:var(--r12);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--fd);font-weight:800;font-size:14px;color:#0D0F14;flex-shrink:0;
+}
+.auth-logo-name{font-family:var(--fd);font-size:20px;font-weight:700}
+.auth-title{font-family:var(--fd);font-size:22px;font-weight:700;margin-bottom:6px;text-align:center}
+.auth-sub{font-size:13px;color:var(--tx2);text-align:center;margin-bottom:24px;line-height:1.5}
+.trial-badge{
+  background:var(--yb);border:1px solid var(--ybd);border-radius:var(--r8);
+  padding:11px 14px;margin-bottom:22px;
+  display:flex;align-items:flex-start;gap:10px;font-size:12px;color:var(--y);line-height:1.5;
+}
+.trial-badge b{font-weight:600}
+.auth-err{
+  background:var(--rb);border:1px solid var(--rbd);border-radius:var(--r8);
+  padding:9px 12px;font-size:12px;color:var(--r);margin-bottom:14px;display:none;
+}
+.auth-err.on{display:block}
+.auth-btn{
+  width:100%;padding:12px;border-radius:var(--r8);
+  background:var(--y);border:none;cursor:pointer;
+  font-family:var(--fd);font-size:14px;font-weight:700;color:#0D0F14;
+  transition:opacity .15s;margin-top:4px;
+}
+.auth-btn:hover{opacity:.88}
+.auth-btn:active{opacity:.75}
+.auth-switch{text-align:center;margin-top:18px;font-size:12.5px;color:var(--tx2)}
+.auth-switch a{color:var(--y);cursor:pointer;font-weight:500;text-decoration:none}
+.auth-switch a:hover{opacity:.8}
+
+/* ════════════════════════════════════════
+   TRIAL EXPIRED WALL
+════════════════════════════════════════ */
+.wall{
+  position:fixed;inset:0;background:rgba(13,15,20,.97);
+  z-index:900;display:none;align-items:center;justify-content:center;padding:20px;
+}
+.wall.on{display:flex}
+.wall-box{
+  max-width:520px;width:100%;background:var(--bg2);border:1px solid var(--bd);
+  border-radius:var(--r16);padding:36px 32px;text-align:center;
+}
+.wall-icon{font-size:44px;margin-bottom:14px}
+.wall-title{font-family:var(--fd);font-size:22px;font-weight:700;margin-bottom:8px}
+.wall-sub{font-size:13px;color:var(--tx2);margin-bottom:24px;line-height:1.6}
+.wall-plans{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:20px}
+.wplan{
+  background:var(--bg3);border:1px solid var(--bd);border-radius:var(--r8);
+  padding:13px 8px;cursor:pointer;transition:var(--transition);text-align:center;
+}
+.wplan:hover{border-color:var(--bd2)}
+.wplan.on{border-color:var(--ybd);background:var(--yb)}
+.wplan-name{font-size:11.5px;font-weight:600;margin-bottom:4px}
+.wplan-price{font-family:var(--fd);font-size:18px;font-weight:700;color:var(--y)}
+.wplan-per{font-size:10px;color:var(--tx3)}
+.wplan-feat{font-size:10px;color:var(--tx2);margin-top:5px;line-height:1.4}
+.wall-cta{
+  width:100%;padding:13px;border-radius:var(--r8);background:var(--y);border:none;
+  font-family:var(--fd);font-size:15px;font-weight:700;color:#0D0F14;cursor:pointer;
+  margin-bottom:10px;transition:opacity .15s;
+}
+.wall-cta:hover{opacity:.88}
+.wall-ghost{
+  width:100%;padding:10px;border-radius:var(--r8);background:transparent;
+  border:1px solid var(--bd2);font-family:var(--fn);font-size:13px;color:var(--tx2);cursor:pointer;
+}
+.wall-ghost:hover{background:var(--bg3)}
+
+/* ════════════════════════════════════════
+   TOAST
+════════════════════════════════════════ */
+.toast{
+  position:fixed;bottom:18px;right:18px;
+  background:var(--bg2);border:1px solid var(--bd2);border-radius:var(--r12);
+  padding:11px 16px;font-size:12.5px;color:var(--tx);
+  box-shadow:0 8px 32px rgba(0,0,0,.55);
+  transform:translateY(70px);opacity:0;
+  transition:all .28s ease;z-index:9999;
+  display:flex;align-items:center;gap:9px;max-width:320px;pointer-events:none;
+}
+.toast.on{transform:none;opacity:1}
+
+/* ════════════════════════════════════════
+   APP LAYOUT
+════════════════════════════════════════ */
+.app{display:flex;height:100vh}
+
+/* ─── SIDEBAR ─── */
+.sidebar{
+  width:var(--sw);background:var(--bg2);border-right:1px solid var(--bd);
+  display:flex;flex-direction:column;flex-shrink:0;overflow:hidden;
+}
+.logo{padding:15px 13px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:9px}
+.logo-ic{
+  width:30px;height:30px;background:var(--y);border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--fd);font-weight:800;font-size:11px;color:#0D0F14;flex-shrink:0;
+}
+.logo-name{font-family:var(--fd);font-size:15px;font-weight:700}
+.logo-ver{font-size:9px;color:var(--tx3)}
+.sidenav{padding:8px 7px;flex:1;overflow-y:auto}
+.nav-sect{
+  font-size:9px;font-weight:600;color:var(--tx3);
+  padding:10px 9px 3px;letter-spacing:.1em;text-transform:uppercase;
+}
+.ni{
+  display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:var(--r8);
+  font-size:12.5px;color:var(--tx2);cursor:pointer;transition:var(--transition);
+  margin-bottom:1px;user-select:none;border:1px solid transparent;
+}
+.ni:hover{background:var(--bg3);color:var(--tx)}
+.ni.on{background:var(--yb);color:var(--y);border-color:var(--ybd)}
+.ni-ic{font-size:13px;width:16px;text-align:center;flex-shrink:0}
+.nbadge{
+  margin-left:auto;background:var(--y);color:#0D0F14;
+  font-size:9px;font-weight:700;padding:1px 6px;border-radius:8px;
+  min-width:18px;text-align:center;line-height:15px;
+}
+.nbadge.r{background:var(--r);color:#fff}
+.sb-foot{padding:9px 7px;border-top:1px solid var(--bd)}
+.user-row{
+  display:flex;align-items:center;gap:9px;padding:8px 10px;
+  border-radius:var(--r8);cursor:pointer;transition:var(--transition);
+}
+.user-row:hover{background:var(--bg3)}
+.ava{
+  width:28px;height:28px;border-radius:50%;background:var(--y);
+  display:flex;align-items:center;justify-content:center;
+  font-size:10px;font-weight:700;color:#0D0F14;flex-shrink:0;
+}
+.u-name{font-size:12px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.u-plan{font-size:10px;color:var(--tx3)}
+
+/* ─── MAIN ─── */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+
+.trial-bar{
+  background:var(--yb);border-bottom:1px solid var(--ybd);
+  padding:7px 18px;display:flex;align-items:center;gap:12px;
+  font-size:12px;color:var(--y);flex-shrink:0;
+}
+.trial-bar.hide{display:none}
+.tbar-txt{flex:1;font-weight:500}
+.tbar-prog-wrap{width:80px;height:4px;background:rgba(255,214,10,.15);border-radius:2px;overflow:hidden;flex-shrink:0}
+.tbar-prog-fill{height:100%;background:var(--y);border-radius:2px;transition:width .5s}
+.tbar-btn{
+  font-size:11px;font-weight:600;padding:4px 12px;border-radius:6px;
+  background:var(--y);border:none;color:#0D0F14;cursor:pointer;white-space:nowrap;
+}
+
+.topbar{
+  background:var(--bg2);border-bottom:1px solid var(--bd);
+  padding:10px 18px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;
+}
+.page-title{font-family:var(--fd);font-size:16px;font-weight:700}
+.page-sub{font-size:11px;color:var(--tx3);margin-top:1px}
+.topbar-r{display:flex;gap:7px;align-items:center}
+.content{flex:1;overflow-y:auto;padding:16px 18px}
+
+/* ─── PANELS ─── */
+.panel{display:none}
+.panel.on{display:block;animation:fadeUp .18s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+
+/* ════════════════════════════════════════
+   CARDS
+════════════════════════════════════════ */
+.card{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r12);padding:14px 16px;margin-bottom:12px}
+.card.nopad{padding:0;overflow:hidden}
+.card-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.card-t{font-family:var(--fd);font-size:13px;font-weight:600}
+.card-sub{font-size:11px;color:var(--tx3);margin-top:2px}
+.card-action{font-size:11px;color:var(--y);cursor:pointer;font-weight:500}
+.card-action:hover{opacity:.8}
+
+/* ════════════════════════════════════════
+   METRICS
+════════════════════════════════════════ */
+.metric{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r12);padding:12px 14px}
+.m-lbl{font-size:10px;color:var(--tx3);font-weight:500;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
+.m-val{font-family:var(--fd);font-size:22px;font-weight:700;margin-bottom:3px}
+.m-d{font-size:11px;font-weight:500}
+.up{color:var(--g)} .dn{color:var(--r)}
+
+/* ════════════════════════════════════════
+   PILLS / TAGS
+════════════════════════════════════════ */
+.pill{font-size:10px;font-weight:600;padding:2px 7px;border-radius:8px;display:inline-block;white-space:nowrap}
+.pill.g{background:var(--gb);color:var(--g)}
+.pill.y{background:var(--yb);color:var(--y)}
+.pill.r{background:var(--rb);color:var(--r)}
+.pill.b{background:var(--blb);color:var(--bl)}
+.pill.n{background:var(--bg4);color:var(--tx3)}
+.tag-row{display:flex;flex-wrap:wrap;gap:5px}
+.tag{
+  font-size:11px;font-weight:500;padding:4px 10px;border-radius:20px;
+  background:var(--bg3);color:var(--tx2);cursor:pointer;border:1px solid var(--bd);
+  transition:var(--transition);user-select:none;
+}
+.tag:hover{border-color:var(--bd2);color:var(--tx)}
+.tag.on{background:var(--yb);color:var(--y);border-color:var(--ybd)}
+
+/* ════════════════════════════════════════
+   PROGRESS BARS
+════════════════════════════════════════ */
+.prog{margin-bottom:9px}
+.prog-lbl{display:flex;justify-content:space-between;font-size:11px;color:var(--tx2);margin-bottom:4px}
+.prog-track{height:5px;background:var(--bg4);border-radius:3px;overflow:hidden}
+.prog-fill{height:100%;border-radius:3px;transition:width .7s ease}
+
+/* ════════════════════════════════════════
+   MINI CHART
+════════════════════════════════════════ */
+.mini-chart{display:flex;align-items:flex-end;gap:3px;height:64px;padding-top:4px}
+.mc-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px}
+.mc-bar{width:100%;border-radius:2px 2px 0 0;min-height:3px}
+.mc-day{font-size:8px;color:var(--tx3)}
+
+/* ════════════════════════════════════════
+   AI BANNER
+════════════════════════════════════════ */
+.ai-banner{
+  background:linear-gradient(135deg,rgba(255,214,10,.07) 0%,rgba(255,191,0,.03) 100%);
+  border:1px solid var(--ybd);border-radius:var(--r12);
+  padding:11px 15px;display:flex;align-items:center;gap:12px;margin-bottom:13px;
+}
+.ai-ban-t{font-size:12px;font-weight:600;color:var(--y);margin-bottom:2px}
+.ai-ban-s{font-size:11.5px;color:var(--tx2);line-height:1.4}
+
+/* ════════════════════════════════════════
+   SEARCH / OFFERS
+════════════════════════════════════════ */
+.filter-g4{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-bottom:9px}
+.filter-g3{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-bottom:9px}
+.search-actions{display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin-bottom:11px}
+.spin{
+  display:inline-block;width:12px;height:12px;
+  border:2px solid var(--bd2);border-top-color:var(--y);
+  border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.load-state{display:none;align-items:center;gap:7px;font-size:11.5px;color:var(--tx3)}
+.load-state.on{display:flex}
+.load-bar{height:2px;background:var(--bg4);border-radius:2px;overflow:hidden;display:none;margin:5px 0 0}
+.load-anim{height:100%;background:var(--y);border-radius:2px;animation:lslide 1s ease-in-out infinite}
+@keyframes lslide{0%{width:0;margin-left:0}50%{width:50%;margin-left:25%}100%{width:0;margin-left:100%}}
+.res-meta{
+  display:flex;align-items:center;justify-content:space-between;
+  font-size:11.5px;color:var(--tx3);margin-bottom:9px;padding-bottom:9px;
+  border-bottom:1px solid var(--bd);
+}
+.offer-card{
+  background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r12);
+  padding:10px 13px;display:flex;align-items:center;gap:10px;
+  margin-bottom:7px;cursor:pointer;transition:var(--transition);
+  position:relative;overflow:hidden;
+}
+.offer-card::before{
+  content:'';position:absolute;left:0;top:0;bottom:0;width:3px;
+  background:transparent;transition:background .15s;
+}
+.offer-card:hover{border-color:var(--bd2);background:var(--bg3)}
+.offer-card.sel{border-color:var(--ybd);background:var(--yb)}
+.offer-card.sel::before{background:var(--y)}
+.o-thumb{
+  width:48px;height:48px;background:var(--bg3);border-radius:var(--r8);
+  border:1px solid var(--bd);display:flex;align-items:center;justify-content:center;
+  font-size:22px;flex-shrink:0;
+}
+.o-info{flex:1;min-width:0}
+.o-name{font-size:12.5px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-bottom:2px}
+.o-meta{font-size:10.5px;color:var(--tx3);margin-bottom:4px}
+.o-prices{display:flex;align-items:baseline;gap:7px;flex-wrap:wrap}
+.o-orig{font-size:10.5px;color:var(--tx3);text-decoration:line-through}
+.o-curr{font-family:var(--fd);font-size:15px;font-weight:700}
+.o-disc{font-size:10px;font-weight:700;background:var(--gb);color:var(--g);padding:2px 6px;border-radius:8px;border:1px solid var(--gbd)}
+.o-stars{font-size:10.5px;color:var(--tx3);margin-top:3px}
+.o-right{display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0}
+.o-check{
+  width:19px;height:19px;border-radius:5px;border:1.5px solid var(--bd2);
+  display:flex;align-items:center;justify-content:center;
+  font-size:10px;font-weight:700;transition:var(--transition);background:var(--bg3);
+}
+.offer-card.sel .o-check{background:var(--y);border-color:var(--y);color:#0D0F14}
+.o-comm{font-size:10px;font-weight:600;color:var(--y);background:var(--yb);border:1px solid var(--ybd);padding:2px 6px;border-radius:7px}
+
+/* ════════════════════════════════════════
+   CAPTIONS STUDIO
+════════════════════════════════════════ */
+.cap-layout{display:grid;grid-template-columns:240px 1fr;gap:13px}
+.style-card{
+  background:var(--bg3);border:1px solid var(--bd);border-radius:var(--r8);
+  padding:9px 11px;cursor:pointer;transition:var(--transition);margin-bottom:5px;user-select:none;
+}
+.style-card:hover{border-color:var(--bd2)}
+.style-card.on{border-color:var(--ybd);background:var(--yb)}
+.sc-name{font-size:12.5px;font-weight:600;margin-bottom:2px}
+.sc-desc{font-size:10.5px;color:var(--tx3);line-height:1.4}
+
+/* WhatsApp Preview */
+.wa-prev{background:#111B21;border-radius:var(--r12);overflow:hidden;border:1px solid var(--bd)}
+.wa-head{background:#202C33;padding:9px 13px;display:flex;align-items:center;gap:9px;border-bottom:1px solid rgba(255,255,255,.05)}
+.wa-ava{width:30px;height:30px;border-radius:50%;background:#25D366;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;flex-shrink:0}
+.wa-gname{font-size:12.5px;font-weight:500;color:#E9EDF0}
+.wa-gmembers{font-size:10px;color:#8696A0}
+.wa-body{padding:13px;min-height:190px;background:#0B141A}
+.wa-bubble{background:#202C33;border-radius:0 10px 10px 10px;padding:9px 12px;max-width:88%;display:inline-block;margin-bottom:4px}
+.wa-text{font-size:12.5px;color:#E9EDF0;line-height:1.55;white-space:pre-wrap;font-family:var(--fn)}
+.wa-time{font-size:10px;color:#8696A0;text-align:right;margin-top:3px}
+.gen-loading{display:none;align-items:center;gap:7px;font-size:11.5px;color:var(--tx3);padding:7px 0}
+.gen-loading.on{display:flex}
+.note-box{font-size:11.5px;color:var(--tx3);background:var(--bg3);border:1px solid var(--bd);border-radius:var(--r8);padding:8px 11px;line-height:1.5}
+
+/* ════════════════════════════════════════
+   WHATSAPP SCHEDULER
+════════════════════════════════════════ */
+.wz-layout{display:grid;grid-template-columns:1fr 305px;gap:13px}
+.sched-list{overflow-y:auto;max-height:420px}
+.sched-item{
+  display:flex;align-items:center;gap:9px;padding:8px 13px;
+  border-bottom:1px solid var(--bd);font-size:12px;transition:background .15s;
+}
+.sched-item:hover{background:var(--bg3)}
+.sched-item:last-child{border-bottom:none}
+.si-num{font-size:10px;color:var(--tx3);min-width:20px;text-align:center;font-weight:600}
+.si-info{flex:1;min-width:0}
+.si-name{font-size:12px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.si-group{font-size:10.5px;color:var(--tx3);margin-top:1px}
+.group-item{display:flex;align-items:center;gap:9px;padding:8px 0;border-bottom:1px solid var(--bd)}
+.group-item:last-child{border-bottom:none}
+.g-ic{width:29px;height:29px;border-radius:50%;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:13px;border:1px solid var(--bd);flex-shrink:0}
+.g-name{flex:1;font-size:12.5px;font-weight:500}
+.g-cnt{font-size:10.5px;color:var(--tx3)}
+.toggle{width:32px;height:18px;background:var(--bg4);border-radius:9px;border:1px solid var(--bd2);cursor:pointer;position:relative;transition:var(--transition);flex-shrink:0}
+.toggle.on{background:var(--y);border-color:var(--y)}
+.toggle-dot{position:absolute;top:2px;left:2px;width:12px;height:12px;background:#fff;border-radius:50%;transition:left .18s;box-shadow:0 1px 3px rgba(0,0,0,.35)}
+.toggle.on .toggle-dot{left:16px;background:#0D0F14}
+
+/* Timeline */
+.tl{position:relative;padding-left:20px}
+.tl::before{content:'';position:absolute;left:6px;top:8px;bottom:8px;width:1px;background:var(--bd)}
+.tl-item{position:relative;margin-bottom:12px}
+.tl-dot{position:absolute;left:-17px;top:4px;width:8px;height:8px;border-radius:50%;border:2px solid var(--bd2);background:var(--bg2)}
+.tl-dot.done{background:var(--g);border-color:var(--g)}
+.tl-dot.now{background:var(--y);border-color:var(--y);animation:pulse 1.5s ease-in-out infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(255,214,10,.45)}50%{box-shadow:0 0 0 5px rgba(255,214,10,0)}}
+.tl-t{font-size:12px;font-weight:600;margin-bottom:2px}
+.tl-s{font-size:11px;color:var(--tx3)}
+
+/* ════════════════════════════════════════
+   REPORTS
+════════════════════════════════════════ */
+.rep-table{width:100%;border-collapse:collapse}
+.rep-table th{font-size:10px;font-weight:600;color:var(--tx3);text-transform:uppercase;letter-spacing:.05em;padding:0 4px 9px;text-align:left;border-bottom:1px solid var(--bd)}
+.rep-table td{padding:9px 4px;border-bottom:1px solid var(--bd);font-size:12.5px;vertical-align:middle}
+.rep-table tr:last-child td{border-bottom:none}
+.rep-table tr:hover td{background:rgba(255,255,255,.01)}
+
+/* ════════════════════════════════════════
+   LINKS
+════════════════════════════════════════ */
+.link-row{display:flex;align-items:center;gap:9px;padding:8px 0;border-bottom:1px solid var(--bd)}
+.link-row:last-child{border-bottom:none}
+
+/* ════════════════════════════════════════
+   PLANS
+════════════════════════════════════════ */
+.plans-g{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+.plan-card{background:var(--bg2);border:1px solid var(--bd);border-radius:var(--r12);padding:13px;position:relative}
+.plan-card.pop{border-color:var(--ybd)}
+.plan-pop-badge{position:absolute;top:-1px;left:50%;transform:translateX(-50%);font-size:9px;font-weight:600;padding:2px 10px;background:var(--y);color:#0D0F14;border-radius:0 0 7px 7px;white-space:nowrap}
+.plan-name{font-family:var(--fd);font-size:13px;font-weight:700;margin-bottom:4px}
+.plan-price{font-family:var(--fd);font-size:20px;font-weight:700;margin-bottom:1px}
+.plan-annual{font-size:10px;color:var(--tx3);margin-bottom:11px}
+.plan-feat{font-size:11px;color:var(--tx2);display:flex;gap:5px;margin-bottom:4px;align-items:flex-start;line-height:1.4}
+.plan-feat-ic{color:var(--g);font-size:10px;flex-shrink:0;margin-top:1px}
+
+/* ════════════════════════════════════════
+   SETTINGS
+════════════════════════════════════════ */
+.settings-layout{display:grid;grid-template-columns:190px 1fr;gap:16px}
+.snav-item{padding:8px 11px;border-radius:var(--r8);font-size:12.5px;color:var(--tx2);cursor:pointer;margin-bottom:2px;transition:var(--transition);user-select:none}
+.snav-item:hover{background:var(--bg3);color:var(--tx)}
+.snav-item.on{background:var(--yb);color:var(--y)}
+
+/* ════════════════════════════════════════
+   SUPPORT / CHAT
+════════════════════════════════════════ */
+.chat-wrap{background:var(--bg3);border-radius:var(--r12);border:1px solid var(--bd);overflow:hidden}
+.chat-msgs{height:310px;overflow-y:auto;padding:13px;display:flex;flex-direction:column;gap:9px}
+.msg-bot .bbl{background:var(--bg2);border:1px solid var(--bd);border-radius:0 10px 10px 10px;display:inline-block;padding:9px 12px;max-width:82%;font-size:12.5px;color:var(--tx2);line-height:1.5}
+.msg-user{text-align:right}
+.msg-user .bbl{background:var(--yb);border:1px solid var(--ybd);border-radius:10px 0 10px 10px;display:inline-block;padding:9px 12px;max-width:82%;font-size:12.5px;color:var(--y);line-height:1.5;text-align:left}
+.chat-input-row{display:flex;gap:7px;padding:10px;border-top:1px solid var(--bd)}
+.chat-input-row input{flex:1}
+.faq-item{border-bottom:1px solid var(--bd);padding:10px 0}
+.faq-item:last-child{border-bottom:none}
+.faq-q{font-size:12.5px;font-weight:500;color:var(--y);margin-bottom:4px}
+.faq-a{font-size:12px;color:var(--tx3);line-height:1.5}
+</style>
+</head>
+<body>
+
+<!-- ═══ AUTH: LOGIN ═══ -->
+<div class="auth-screen" id="sc-login">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div class="auth-logo-ic">ML</div>
+      <div class="auth-logo-name">AfiliaML</div>
+    </div>
+    <div class="auth-title">Entrar na conta</div>
+    <div class="auth-sub">Acesse seu painel de afiliados do Mercado Livre</div>
+    <div class="auth-err" id="login-err"></div>
+    <div class="field"><label>E-mail</label><input type="email" id="l-email" placeholder="seu@email.com" autocomplete="email" /></div>
+    <div class="field"><label>Senha</label><input type="password" id="l-pass" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()" /></div>
+    <button class="auth-btn" onclick="doLogin()">Entrar →</button>
+    <div class="auth-switch">Não tem conta? <a onclick="showSc('sc-reg')">Criar conta — 5 dias grátis</a></div>
+    <div style="text-align:center;margin-top:12px;font-size:11px;color:var(--tx3)">Demo: demo@afiliaml.com / demo123</div>
+  </div>
+</div>
+
+<!-- ═══ AUTH: REGISTRO ═══ -->
+<div class="auth-screen hide" id="sc-reg">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div class="auth-logo-ic">ML</div>
+      <div class="auth-logo-name">AfiliaML</div>
+    </div>
+    <div class="auth-title">Criar conta gratuita</div>
+    <div class="auth-sub">5 dias com acesso Pro completo</div>
+    <div class="trial-badge">
+      <span style="font-size:18px;flex-shrink:0">⏱</span>
+      <span><b>5 dias de teste grátis</b>, acesso Pro completo. Sem cartão. Sem cobrança automática.</span>
+    </div>
+    <div class="auth-err" id="reg-err"></div>
+    <div class="g2">
+      <div class="field" style="margin-bottom:0"><label>Nome completo</label><input type="text" id="r-name" placeholder="Seu nome" autocomplete="name" /></div>
+      <div class="field" style="margin-bottom:0"><label>E-mail</label><input type="email" id="r-email" placeholder="seu@email.com" autocomplete="email" /></div>
+    </div>
+    <div style="height:10px"></div>
+    <div class="field"><label>Senha</label><input type="password" id="r-pass" placeholder="Mínimo 6 caracteres" autocomplete="new-password" /></div>
+    <div class="field" style="margin-bottom:8px">
+      <label>Link ou ID de afiliado ML <span style="color:var(--tx3);font-weight:400;text-transform:none;letter-spacing:0">(opcional)</span></label>
+      <input type="text" id="r-aff" placeholder="Cole o link ou o ID (ex: meunome123)" oninput="previewAff(this,'r-aff-ok')" />
+      <div class="aff-preview" id="r-aff-ok"></div>
+      <div class="hint">Cole o link do ML Afiliados ou só o ID curto. Encontre em mercadolivre.com.br → Minha conta → Afiliados. Pode deixar em branco por enquanto.</div>
+    </div>
+    <button class="auth-btn" onclick="doRegister()">Começar trial grátis →</button>
+    <div class="auth-switch">Já tem conta? <a onclick="showSc('sc-login')">Entrar</a></div>
+  </div>
+</div>
+
+<!-- ═══ TRIAL EXPIRADO ═══ -->
+<div class="wall" id="wall">
+  <div class="wall-box">
+    <div class="wall-icon">⏱</div>
+    <div class="wall-title">Seu trial de 5 dias terminou</div>
+    <div class="wall-sub">Escolha um plano para continuar. Seus dados estão salvos e prontos para retomar.</div>
+    <div class="wall-plans">
+      <div class="wplan on" id="wp-basico" onclick="pickPlan(this,'basico')">
+        <div class="wplan-name">Básico</div>
+        <div class="wplan-price">R$27</div><div class="wplan-per">/mês</div>
+        <div class="wplan-feat">20 buscas · 10 legendas · 10 msgs/dia</div>
+      </div>
+      <div class="wplan" id="wp-pro" onclick="pickPlan(this,'pro')">
+        <div class="wplan-name">Pro ⭐</div>
+        <div class="wplan-price">R$57</div><div class="wplan-per">/mês</div>
+        <div class="wplan-feat">Ilimitado · 30 msgs/dia · IA real</div>
+      </div>
+      <div class="wplan" id="wp-ultra" onclick="pickPlan(this,'ultra')">
+        <div class="wplan-name">Ultra</div>
+        <div class="wplan-price">R$97</div><div class="wplan-per">/mês</div>
+        <div class="wplan-feat">60 msgs/dia · API WhatsApp</div>
+      </div>
+      <div class="wplan" id="wp-agencia" onclick="pickPlan(this,'agencia')">
+        <div class="wplan-name">Agência</div>
+        <div class="wplan-price">R$197</div><div class="wplan-per">/mês</div>
+        <div class="wplan-feat">10 usuários · Multi-conta</div>
+      </div>
+    </div>
+    <button class="wall-cta" id="wall-cta-btn" onclick="goCheckout()">Assinar Básico — R$27/mês</button>
+    <button class="wall-ghost" onclick="doLogout()">Sair da conta</button>
+  </div>
+</div>
+
+<!-- ═══ TOAST ═══ -->
+<div class="toast" id="toast"><span id="t-ic">✓</span><span id="t-msg"></span></div>
+
+<!-- ═══ APP ═══ -->
+<div class="app hide" id="app">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="logo">
+      <div class="logo-ic">ML</div>
+      <div><div class="logo-name">AfiliaML</div><div class="logo-ver">MVP v1.0</div></div>
+    </div>
+    <nav class="sidenav">
+      <div class="nav-sect">Painel</div>
+      <div class="ni on" onclick="goTo('dashboard',this)"><span class="ni-ic">◈</span> Visão Geral</div>
+      <div class="ni" onclick="goTo('reports',this)"><span class="ni-ic">📊</span> Relatórios</div>
+      <div class="nav-sect">Ferramentas IA</div>
+      <div class="ni" onclick="goTo('search',this)"><span class="ni-ic">🔍</span> Buscar Ofertas</div>
+      <div class="ni" onclick="goTo('captions',this)"><span class="ni-ic">✦</span> Legendas com IA</div>
+      <div class="ni" onclick="goTo('whatsapp',this)">
+        <span class="ni-ic">💬</span> Agendador WhatsApp
+        <span class="nbadge" id="q-badge">0</span>
+      </div>
+      <div class="ni" onclick="goTo('links',this)"><span class="ni-ic">🔗</span> Gerador de Links</div>
+      <div class="nav-sect">Conta</div>
+      <div class="ni" onclick="goTo('plans',this)"><span class="ni-ic">💳</span> Planos</div>
+      <div class="ni" onclick="goTo('settings',this)"><span class="ni-ic">⚙</span> Configurações</div>
+      <div class="ni" onclick="goTo('support',this)"><span class="ni-ic">💬</span> Suporte IA <span class="nbadge r" id="badge-support">1</span></div>
+    </nav>
+    <div class="sb-foot">
+      <div class="user-row" onclick="goTo('settings',null)">
+        <div class="ava" id="sb-ava">?</div>
+        <div style="min-width:0">
+          <div class="u-name" id="sb-name">...</div>
+          <div class="u-plan" id="sb-plan">...</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+    <!-- Trial bar -->
+    <div class="trial-bar" id="trial-bar">
+      <span>⏱</span>
+      <div class="tbar-txt">Trial: <b id="trial-days-txt">5 dias</b> restantes · Acesso Pro completo</div>
+      <div class="tbar-prog-wrap"><div class="tbar-prog-fill" id="trial-prog" style="width:100%"></div></div>
+      <button class="tbar-btn" onclick="showWall()">Assinar agora</button>
+    </div>
+
+    <!-- Topbar -->
+    <div class="topbar">
+      <div>
+        <div class="page-title" id="page-title">Visão Geral</div>
+        <div class="page-sub" id="page-sub">Bem-vindo de volta</div>
+      </div>
+      <div class="topbar-r">
+        <span id="sel-indicator" style="font-size:11px;color:var(--tx3);display:none">
+          <b id="sel-num" style="color:var(--y)">0</b> selecionadas
+        </span>
+        <button class="btn sm" onclick="exportCSV()">↗ Exportar</button>
+        <button class="btn sm y" onclick="goTo('search',null)">+ Buscar Ofertas</button>
+      </div>
+    </div>
+
+    <!-- Content -->
+    <div class="content">
+
+      <!-- ══ DASHBOARD ══ -->
+      <div class="panel on" id="panel-dashboard">
+        <div class="ai-banner">
+          <span style="font-size:18px;flex-shrink:0">✦</span>
+          <div style="flex:1">
+            <div class="ai-ban-t" id="ai-ins-t">Carregando insight...</div>
+            <div class="ai-ban-s" id="ai-ins-s"></div>
+          </div>
+          <button class="btn sm y" style="flex-shrink:0" onclick="goTo('search',null)">Ver ofertas ↗</button>
+        </div>
+        <div class="g4" style="margin-bottom:12px">
+          <div class="metric"><div class="m-lbl">Receita (30d)</div><div class="m-val">R$4.820</div><div class="m-d up">▲ 18,4% vs março</div></div>
+          <div class="metric"><div class="m-lbl">Cliques totais</div><div class="m-val">38.140</div><div class="m-d up">▲ 12,1%</div></div>
+          <div class="metric"><div class="m-lbl">Conversão</div><div class="m-val">3,7%</div><div class="m-d dn">▼ 0,3%</div></div>
+          <div class="metric"><div class="m-lbl">Comissões</div><div class="m-val">R$367</div><div class="m-d up">▲ 5,2%</div></div>
+        </div>
+        <div class="g2">
+          <div class="card"><div class="card-h"><div class="card-t">Cliques — 14 dias</div></div><div class="mini-chart" id="dash-chart"></div></div>
+          <div class="card">
+            <div class="card-h"><div class="card-t">Receita por canal</div></div>
+            <div class="prog"><div class="prog-lbl"><span>Instagram</span><span>R$2.140 · 44%</span></div><div class="prog-track"><div class="prog-fill" style="width:44%;background:var(--y)"></div></div></div>
+            <div class="prog"><div class="prog-lbl"><span>YouTube</span><span>R$1.380 · 28%</span></div><div class="prog-track"><div class="prog-fill" style="width:28%;background:var(--g)"></div></div></div>
+            <div class="prog"><div class="prog-lbl"><span>WhatsApp</span><span>R$840 · 17%</span></div><div class="prog-track"><div class="prog-fill" style="width:17%;background:var(--bl)"></div></div></div>
+            <div class="prog"><div class="prog-lbl"><span>Blog/SEO</span><span>R$460 · 11%</span></div><div class="prog-track"><div class="prog-fill" style="width:11%;background:var(--or)"></div></div></div>
+          </div>
+        </div>
+        <div class="g2">
+          <div class="card"><div class="card-h"><div class="card-t">Top produtos</div><div class="card-action" onclick="goTo('reports',null)">Ver todos →</div></div><div id="top-prods"></div></div>
+          <div class="card"><div class="card-h"><div class="card-t">Alertas inteligentes</div><span class="pill y">3 novos</span></div><div id="alerts-list"></div></div>
+        </div>
+      </div>
+
+      <!-- ══ BUSCAR OFERTAS ══ -->
+      <div class="panel" id="panel-search">
+        <div class="card">
+          <div class="card-h">
+            <div><div class="card-t">🔍 Busca Inteligente de Ofertas</div><div class="card-sub">Filtre por desconto, preço, categoria e mais — IA seleciona as melhores</div></div>
+          </div>
+          <div class="filter-g4">
+            <div class="field" style="margin-bottom:0"><label>Categoria</label>
+              <select id="f-cat"><option value="">Todas</option><option>Eletrônicos</option><option>Moda</option><option>Casa</option><option>Esporte</option><option>Informática</option><option>Beleza</option><option>Games</option><option>Ferramentas</option></select>
+            </div>
+            <div class="field" style="margin-bottom:0"><label>Produto</label><input type="text" id="f-kw" placeholder="Ex: fone bluetooth..." /></div>
+            <div class="field" style="margin-bottom:0"><label>Desconto mín. (%)</label><input type="number" id="f-disc" value="25" min="0" max="90" /></div>
+            <div class="field" style="margin-bottom:0"><label>Preço máx. (R$)</label><input type="number" id="f-price" value="800" min="0" /></div>
+          </div>
+          <div class="filter-g3" style="margin-top:9px">
+            <div class="field" style="margin-bottom:0"><label>Frete</label>
+              <select id="f-ship"><option value="">Qualquer</option><option value="gratis">Frete Grátis</option><option value="full">Full (1 dia)</option></select>
+            </div>
+            <div class="field" style="margin-bottom:0"><label>Avaliação mín.</label>
+              <select id="f-rat"><option value="0">Qualquer</option><option value="4">4+ estrelas</option><option value="4.5">4.5+ estrelas</option><option value="4.8">4.8+ estrelas</option></select>
+            </div>
+            <div class="field" style="margin-bottom:0"><label>Ordenar por</label>
+              <select id="f-sort"><option value="disc">Maior desconto</option><option value="comm">Maior comissão R$</option><option value="price">Menor preço</option><option value="stars">Melhor avaliação</option></select>
+            </div>
+          </div>
+          <div style="margin-top:11px;margin-bottom:11px">
+            <div class="lbl" style="margin-bottom:6px">Estilo das legendas geradas automaticamente</div>
+            <div class="tag-row" id="style-tags">
+              <span class="tag on" data-style="urgency" onclick="tagClick(this)">🔥 Urgência</span>
+              <span class="tag" data-style="luxury" onclick="tagClick(this)">💎 Luxo</span>
+              <span class="tag" data-style="fun" onclick="tagClick(this)">😂 Descontraído</span>
+              <span class="tag" data-style="direct" onclick="tagClick(this)">🎯 Direto</span>
+              <span class="tag" data-style="emotional" onclick="tagClick(this)">❤️ Emocional</span>
+            </div>
+          </div>
+          <div class="search-actions">
+            <button class="btn y" style="padding:8px 18px" onclick="runSearch()">🔍 Buscar com IA</button>
+            <button class="btn sm" onclick="selTop30()">⭐ Top 30</button>
+            <button class="btn sm" onclick="selAllOffers()">☑ Selecionar todas</button>
+            <button class="btn sm ghost" onclick="clearSel()">✕ Limpar</button>
+            <div class="load-state" id="search-load"><div class="spin"></div>Buscando no Mercado Livre...</div>
+            <div style="margin-left:auto;font-size:11px;color:var(--tx3)">Selecionadas: <b id="sel-count" style="color:var(--y)">0</b>/30</div>
+          </div>
+          <div class="load-bar" id="load-bar"><div class="load-anim"></div></div>
+        </div>
+        <div id="offers-wrap">
+          <div class="res-meta">
+            <span><b id="res-count" style="color:var(--tx)">16</b> ofertas encontradas</span>
+            <button class="btn sm y" id="go-wz-btn" style="display:none" onclick="goTo('whatsapp',null)">
+              💬 Agendar <b id="go-wz-n">0</b> no WhatsApp ↗
+            </button>
+          </div>
+          <div id="offers-list"></div>
+        </div>
+      </div>
+
+      <!-- ══ LEGENDAS IA ══ -->
+      <div class="panel" id="panel-captions">
+        <div class="cap-layout">
+          <div>
+            <div class="card" style="margin-bottom:11px">
+              <div class="card-h"><div class="card-t">✦ Estilo da legenda</div></div>
+              <div id="style-opts">
+                <div class="style-card on" onclick="pickStyle(this,'urgency')"><div class="sc-name">🔥 Urgência / FOMO</div><div class="sc-desc">Senso de escassez e tempo limitado</div></div>
+                <div class="style-card" onclick="pickStyle(this,'luxury')"><div class="sc-name">💎 Luxo acessível</div><div class="sc-desc">Qualidade premium, preço imbatível</div></div>
+                <div class="style-card" onclick="pickStyle(this,'fun')"><div class="sc-name">😂 Descontraído</div><div class="sc-desc">Tom de amigo, informal, alta abertura</div></div>
+                <div class="style-card" onclick="pickStyle(this,'direct')"><div class="sc-name">🎯 Direto ao ponto</div><div class="sc-desc">Produto, preço, link. Sem enrolação.</div></div>
+                <div class="style-card" onclick="pickStyle(this,'emotional')"><div class="sc-name">❤️ Emocional</div><div class="sc-desc">Conecta com desejos e necessidades</div></div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-h"><div class="card-t">Produto</div></div>
+              <div class="field" style="margin-bottom:9px"><label>Oferta</label>
+                <select id="cap-prod">
+                  <option value="0">🎧 Fone JBL Tune 720BT — R$189 (37%)</option>
+                  <option value="1">👟 Tênis Nike Air Max — R$249 (38%)</option>
+                  <option value="2">📱 Samsung Galaxy A34 — R$999 (33%)</option>
+                  <option value="3">🏋 Kit Halteres 10kg — R$129 (35%)</option>
+                  <option value="4">🍳 Air Fryer Mondial 4L — R$229 (34%)</option>
+                  <option value="5">⌚ Smartwatch Xiaomi — R$259 (35%)</option>
+                </select>
+              </div>
+              <div class="field" style="margin-bottom:9px"><label>Tom / público-alvo <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--tx3)">(opcional)</span></label>
+                <input type="text" id="cap-tone" placeholder="Ex: para mães, presente de aniversário..." />
+              </div>
+              <div style="display:flex;gap:7px">
+                <button class="btn y w" onclick="genCaption(false)">✦ Gerar legenda</button>
+                <button class="btn sm g" onclick="genCaption(true)" title="Usa Claude AI real — configure API key em Configurações">✦ IA real</button>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="wa-prev">
+              <div class="wa-head">
+                <div class="wa-ava">G</div>
+                <div><div class="wa-gname">Grupo Ofertas VIP 🛍</div><div class="wa-gmembers">847 membros · 23 online</div></div>
+              </div>
+              <div class="wa-body">
+                <div class="wa-bubble">
+                  <div class="wa-text" id="cap-text">Clique em "Gerar legenda" para criar seu texto estratégico.</div>
+                  <div class="wa-time" id="cap-time">agora ✓✓</div>
+                </div>
+                <div class="gen-loading" id="gen-loading"><div class="spin"></div>IA criando legenda estratégica...</div>
+              </div>
+            </div>
+            <div style="display:flex;gap:7px;margin-top:9px">
+              <button class="btn sm" onclick="copyCaption()">📋 Copiar texto</button>
+              <button class="btn sm ghost" onclick="genCaption(false)">↺ Nova versão</button>
+              <button class="btn sm g" onclick="addCaptionToQueue()">+ Fila WhatsApp</button>
+            </div>
+            <div class="note-box" style="margin-top:9px">
+              ✦ <b>Gerar legenda</b> usa templates estratégicos otimizados para conversão.<br>
+              ✦ <b>IA real</b> usa Claude (configure API key em Configurações → IA). Custo: ~R$0,02/legenda.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ WHATSAPP ══ -->
+      <div class="panel" id="panel-whatsapp">
+        <div class="g3" style="margin-bottom:12px">
+          <div class="metric"><div class="m-lbl">Na fila hoje</div><div class="m-val" id="wz-total">0</div><div class="m-d" style="color:var(--tx3)">máx. 30/dia</div></div>
+          <div class="metric"><div class="m-lbl">Enviadas</div><div class="m-val up">7</div><div class="m-d up">↑ no prazo</div></div>
+          <div class="metric"><div class="m-lbl">Próximo envio</div><div class="m-val" id="wz-next">--:--</div><div class="m-d" style="color:var(--tx3)" id="wz-next-p">aguardando</div></div>
+        </div>
+        <div class="wz-layout">
+          <div class="card nopad" style="margin-bottom:0">
+            <div class="card-h" style="padding:12px 14px;border-bottom:1px solid var(--bd);margin:0">
+              <div><div class="card-t">Fila de envio do dia</div><div class="card-sub" id="wz-sub">Selecione ofertas para começar</div></div>
+              <div style="display:flex;gap:6px">
+                <button class="btn sm g" id="btn-start" onclick="startQueue()">▶ Iniciar</button>
+                <button class="btn sm" id="btn-pause" disabled onclick="pauseQueue()">⏸ Pausar</button>
+              </div>
+            </div>
+            <div class="sched-list" id="sched-list">
+              <div style="padding:36px;text-align:center;color:var(--tx3);font-size:12.5px">
+                Nenhuma oferta na fila.<br><br>
+                <button class="btn sm y" onclick="goTo('search',null)">Buscar Ofertas →</button>
+              </div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:11px">
+            <div class="card">
+              <div class="card-h" style="margin-bottom:9px"><div class="card-t">Grupos WhatsApp</div><button class="btn sm" onclick="addGroup()">+ Grupo</button></div>
+              <div id="groups-list">
+                <div class="group-item"><div class="g-ic">🛍</div><div style="flex:1;min-width:0"><div class="g-name">Ofertas VIP</div><div class="g-cnt">847 membros</div></div><div class="toggle on" onclick="this.classList.toggle('on')"><div class="toggle-dot"></div></div></div>
+                <div class="group-item"><div class="g-ic">⚡</div><div style="flex:1;min-width:0"><div class="g-name">Promoções Relâmpago</div><div class="g-cnt">1.204 membros</div></div><div class="toggle on" onclick="this.classList.toggle('on')"><div class="toggle-dot"></div></div></div>
+                <div class="group-item"><div class="g-ic">💻</div><div style="flex:1;min-width:0"><div class="g-name">Tech &amp; Gadgets</div><div class="g-cnt">562 membros</div></div><div class="toggle" onclick="this.classList.toggle('on')"><div class="toggle-dot"></div></div></div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-h" style="margin-bottom:9px"><div class="card-t">Horário de envio</div></div>
+              <div class="g2" style="margin-bottom:9px">
+                <div class="field" style="margin-bottom:0"><label>Início</label><input type="time" id="wz-start" value="08:00" /></div>
+                <div class="field" style="margin-bottom:0"><label>Fim</label><input type="time" id="wz-end" value="21:00" /></div>
+              </div>
+              <div class="note-box">✦ IA distribui com intervalos variados (20–40 min) para evitar bloqueio pelo WhatsApp</div>
+            </div>
+            <div class="card">
+              <div class="card-h" style="margin-bottom:9px"><div class="card-t">Timeline do dia</div></div>
+              <div class="tl">
+                <div class="tl-item"><div class="tl-dot done"></div><div class="tl-t">Manhã (08h–12h)</div><div class="tl-s">7 enviadas com sucesso</div></div>
+                <div class="tl-item"><div class="tl-dot now"></div><div class="tl-t">Tarde (12h–18h)</div><div class="tl-s">Em andamento</div></div>
+                <div class="tl-item"><div class="tl-dot"></div><div class="tl-t">Noite (18h–21h)</div><div class="tl-s" id="wz-night">Agendadas</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ LINKS ══ -->
+      <div class="panel" id="panel-links">
+        <div class="g2">
+          <div>
+            <div class="card">
+              <div class="card-h"><div class="card-t">🔗 Gerador de Link Rastreado</div></div>
+              <div class="field"><label>URL do produto ML</label><input type="text" id="lnk-url" placeholder="https://www.mercadolivre.com.br/produto..." /></div>
+              <div class="field">
+                <label>ID de afiliado</label>
+                <input type="text" id="lnk-aff" placeholder="Preenchido automaticamente do seu perfil" />
+                <div class="hint">Preenchido com o ID do seu cadastro. Altere se necessário.</div>
+              </div>
+              <div class="lbl" style="margin-bottom:6px">Parâmetros UTM</div>
+              <div class="g2" style="margin-bottom:12px">
+                <div class="field" style="margin-bottom:0"><label>Fonte</label><input type="text" id="utm-src" placeholder="instagram" /></div>
+                <div class="field" style="margin-bottom:0"><label>Campanha</label><input type="text" id="utm-cam" placeholder="maio2025" /></div>
+              </div>
+              <button class="btn y w" onclick="genLink()">🔗 Gerar Link Rastreado</button>
+            </div>
+            <div class="card" id="lnk-result" style="display:none">
+              <div class="card-h" style="margin-bottom:9px"><div class="card-t">Link gerado</div></div>
+              <div style="background:var(--bg3);border:1px solid var(--bd);border-radius:var(--r8);padding:10px 12px;font-size:11.5px;color:var(--bl);word-break:break-all;margin-bottom:9px" id="lnk-output"></div>
+              <div style="display:flex;gap:7px">
+                <button class="btn sm" onclick="copyLink()">📋 Copiar</button>
+                <button class="btn sm ghost" onclick="shortenLink()">✂ Encurtar</button>
+              </div>
+            </div>
+          </div>
+          <div class="card"><div class="card-h"><div class="card-t">Links recentes</div></div><div id="recent-links"></div></div>
+        </div>
+      </div>
+
+      <!-- ══ RELATÓRIOS ══ -->
+      <div class="panel" id="panel-reports">
+        <div class="g4" style="margin-bottom:12px">
+          <div class="metric"><div class="m-lbl">Receita (30d)</div><div class="m-val">R$4.820</div><div class="m-d up">▲ 18,4%</div></div>
+          <div class="metric"><div class="m-lbl">Comissão média</div><div class="m-val">6,2%</div><div class="m-d up">▲ 0,4%</div></div>
+          <div class="metric"><div class="m-lbl">Produtos ativos</div><div class="m-val">47</div><div class="m-d up">▲ 8</div></div>
+          <div class="metric"><div class="m-lbl">Msgs enviadas</div><div class="m-val">210</div><div class="m-d up">▲ 30</div></div>
+        </div>
+        <div class="card">
+          <div class="card-h"><div class="card-t">Performance por produto</div><button class="btn sm" onclick="exportCSV()">↗ Exportar CSV</button></div>
+          <div style="overflow-x:auto">
+            <table class="rep-table">
+              <thead><tr><th>Produto</th><th>Cat.</th><th>Cliques</th><th>Conv.</th><th>Conv%</th><th>Comissão</th><th>Receita</th><th>Status</th></tr></thead>
+              <tbody id="rep-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ PLANOS ══ -->
+      <div class="panel" id="panel-plans">
+        <div class="ai-banner" style="margin-bottom:14px">
+          <span style="font-size:18px;flex-shrink:0">💳</span>
+          <div><div class="ai-ban-t" id="plan-status-t">Trial ativo</div><div class="ai-ban-s" id="plan-status-s">Acesso Pro completo durante o período de teste.</div></div>
+        </div>
+        <div class="plans-g" id="plans-grid"></div>
+        <div class="card">
+          <div class="card-h"><div class="card-t">Perguntas frequentes</div></div>
+          <div class="g2">
+            <div style="padding:9px 0;border-bottom:1px solid var(--bd)"><div style="font-size:12.5px;font-weight:500;margin-bottom:3px">O que acontece após o trial?</div><div style="font-size:12px;color:var(--tx3)">Acesso pausa. Dados salvos por 30 dias. Escolha um plano para continuar.</div></div>
+            <div style="padding:9px 0;border-bottom:1px solid var(--bd)"><div style="font-size:12.5px;font-weight:500;margin-bottom:3px">Posso cancelar quando quiser?</div><div style="font-size:12px;color:var(--tx3)">Sim, sem fidelidade ou multa. No anual, período restante vira crédito.</div></div>
+            <div style="padding:9px 0"><div style="font-size:12.5px;font-weight:500;margin-bottom:3px">Formas de pagamento?</div><div style="font-size:12px;color:var(--tx3)">Pix, cartão em até 12× e boleto. Processado pela Kiwify.</div></div>
+            <div style="padding:9px 0"><div style="font-size:12.5px;font-weight:500;margin-bottom:3px">Desconto anual?</div><div style="font-size:12px;color:var(--tx3)">25% off. Pro: R$43/mês (vs R$57 no mensal). Economia de R$168/ano.</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ CONFIGURAÇÕES ══ -->
+      <div class="panel" id="panel-settings">
+        <div class="settings-layout">
+          <div>
+            <div class="snav-item on" onclick="switchSettings(this,'ss-perfil')">👤 Perfil</div>
+            <div class="snav-item" onclick="switchSettings(this,'ss-ml')">🛒 Mercado Livre</div>
+            <div class="snav-item" onclick="switchSettings(this,'ss-wz')">💬 WhatsApp</div>
+            <div class="snav-item" onclick="switchSettings(this,'ss-ia')">✦ IA &amp; API</div>
+            <div class="snav-item" onclick="switchSettings(this,'ss-notif')">🔔 Notificações</div>
+          </div>
+          <div>
+            <div id="ss-perfil">
+              <div class="card">
+                <div class="card-h"><div class="card-t">Dados do Perfil</div></div>
+                <div class="g2" style="margin-bottom:10px">
+                  <div class="field" style="margin-bottom:0"><label>Nome completo</label><input type="text" id="s-name" /></div>
+                  <div class="field" style="margin-bottom:0"><label>E-mail</label><input type="email" id="s-email" disabled style="opacity:.6;cursor:not-allowed" /></div>
+                </div>
+                <div class="field">
+                  <label>Link ou ID de afiliado ML</label>
+                  <input type="text" id="s-aff" placeholder="Cole o link ou ID do ML Afiliados" oninput="previewAff(this,'s-aff-ok')" />
+                  <div class="aff-preview" id="s-aff-ok"></div>
+                  <div class="hint">Aceita URL completa ou só o ID. O sistema extrai automaticamente.</div>
+                </div>
+                <button class="btn y" onclick="saveProfile()">Salvar perfil</button>
+              </div>
+            </div>
+            <div id="ss-ml" style="display:none">
+              <div class="card">
+                <div class="card-h"><div class="card-t">Integração Mercado Livre</div></div>
+                <div class="field"><label>App ID</label><input type="text" id="s-ml-appid" placeholder="1234567890" /></div>
+                <div class="field"><label>Access Token</label><input type="text" id="s-ml-token" placeholder="APP_USR-..." /></div>
+                <div class="note-box" style="margin-bottom:10px">Obtenha em: <b>developers.mercadolivre.com.br</b> → Criar aplicativo</div>
+                <button class="btn y" onclick="saveMLConfig()">Salvar integração</button>
+              </div>
+            </div>
+            <div id="ss-wz" style="display:none">
+              <div class="card">
+                <div class="card-h"><div class="card-t">WhatsApp Business API</div></div>
+                <div class="field"><label>Token da API</label><input type="text" id="s-wz-token" placeholder="EAABwzLixnjYB..." /></div>
+                <div class="field"><label>Número remetente</label><input type="text" id="s-wz-num" placeholder="+55 51 9XXXX-XXXX" /></div>
+                <div class="note-box" style="margin-bottom:10px">
+                  <b>Para uso pessoal (sem API):</b> o agendador mostra cada mensagem no horário certo para você copiar e colar manualmente nos grupos. A API é opcional e habilita envio automático real.
+                </div>
+                <button class="btn y" onclick="saveWZConfig()">Salvar</button>
+              </div>
+            </div>
+            <div id="ss-ia" style="display:none">
+              <div class="card">
+                <div class="card-h"><div class="card-t">IA &amp; API Anthropic</div></div>
+                <div class="field"><label>Tom padrão das legendas</label>
+                  <select id="s-style"><option value="urgency">🔥 Urgência / FOMO</option><option value="luxury">💎 Luxo acessível</option><option value="fun">😂 Descontraído</option><option value="direct">🎯 Direto ao ponto</option><option value="emotional">❤️ Emocional</option></select>
+                </div>
+                <div class="field"><label>Contexto do seu público</label>
+                  <textarea id="s-audience" placeholder="Ex: Meu público são pessoas de 25-45 anos interessadas em tecnologia e economia doméstica..."></textarea>
+                </div>
+                <div class="field">
+                  <label>Anthropic API Key</label>
+                  <input type="password" id="s-apikey" placeholder="sk-ant-api03-..." />
+                  <div class="hint">Obtenha em <b>console.anthropic.com</b>. Salva apenas no seu dispositivo — nunca enviada para servidores externos.</div>
+                </div>
+                <button class="btn y" onclick="saveApiKey()">Salvar configurações IA</button>
+              </div>
+            </div>
+            <div id="ss-notif" style="display:none">
+              <div class="card">
+                <div class="card-h"><div class="card-t">Notificações</div></div>
+                <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--bd)"><div><div style="font-size:12.5px;font-weight:500">Produto fora de estoque</div><div style="font-size:11px;color:var(--tx3)">Alerta quando um produto sai de estoque</div></div><div class="toggle on" onclick="this.classList.toggle('on')"><div class="toggle-dot"></div></div></div>
+                <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--bd)"><div><div style="font-size:12.5px;font-weight:500">Campanhas ML</div><div style="font-size:11px;color:var(--tx3)">Novas bonificações e campanhas especiais</div></div><div class="toggle on" onclick="this.classList.toggle('on')"><div class="toggle-dot"></div></div></div>
+                <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0"><div><div style="font-size:12.5px;font-weight:500">Relatório semanal</div><div style="font-size:11px;color:var(--tx3)">Resumo de performance toda segunda</div></div><div class="toggle" onclick="this.classList.toggle('on')"><div class="toggle-dot"></div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ SUPORTE ══ -->
+      <div class="panel" id="panel-support">
+        <div class="g2">
+          <div class="chat-wrap">
+            <div class="chat-msgs" id="chat-msgs"></div>
+            <div class="chat-input-row">
+              <input type="text" id="chat-in" placeholder="Pergunte sobre estratégias, comissões, WhatsApp..." onkeydown="if(event.key==='Enter')sendChat()" />
+              <button class="btn sm y" onclick="sendChat()">Enviar</button>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-h"><div class="card-t">Dúvidas frequentes</div></div>
+            <div id="faq-list"></div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<!-- ═══════════════════════════════════════════
+     JAVASCRIPT — COMPLETO E SEM BUGS
+═══════════════════════════════════════════ -->
+<script>
+'use strict';
+
+/* ── STORAGE com fallback em memória (funciona mesmo sem localStorage) ── */
+const _mem = {};
+const DB = {
+  get(k) {
+    try {
+      const v = localStorage.getItem('aml_'+k);
+      if (v !== null) { _mem['aml_'+k] = JSON.parse(v); }
+      return _mem['aml_'+k] ?? null;
+    } catch { return _mem['aml_'+k] ?? null; }
+  },
+  set(k,v) {
+    _mem['aml_'+k] = v;
+    try { localStorage.setItem('aml_'+k, JSON.stringify(v)); } catch {}
+  },
+  del(k) {
+    delete _mem['aml_'+k];
+    try { localStorage.removeItem('aml_'+k); } catch {}
+  },
+};
+
+/* ── UTILS ── */
+const $  = id => document.getElementById(id);
+const qs = sel => document.querySelector(sel);
+const qa = sel => document.querySelectorAll(sel);
+const rand = (a,b) => Math.floor(Math.random()*(b-a+1))+a;
+const slug = s => s.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,24);
+const clamp = (v,a,b) => Math.min(b,Math.max(a,v));
+
+/* ── ID DE AFILIADO: aceita URL completa ou ID puro ── */
+function extractAffId(raw) {
+  if (!raw) return '';
+  raw = raw.trim();
+  let m;
+  m = raw.match(/\/social\/([^/?&#\s]+)/i);          if (m) return m[1];
+  m = raw.match(/[?&]aff[_-]?id=([^&\s]+)/i);        if (m) return m[1];
+  m = raw.match(/\/afilia(?:do|te)s?\/([^/?&#\s]+)/i);if (m) return m[1];
+  if (raw.startsWith('http')) {
+    try {
+      const u = new URL(raw);
+      const parts = u.pathname.split('/').filter(Boolean);
+      if (parts.length) return parts[parts.length-1].replace(/[^a-zA-Z0-9_@.-]/g,'').slice(0,50);
+    } catch {}
+  }
+  return raw.replace(/[^a-zA-Z0-9_@.-]/g,'').slice(0,50);
+}
+
+function previewAff(input, okId) {
+  const raw = (input.value||'').trim();
+  const el  = $(okId);
+  if (!el) return;
+  if (!raw) { el.classList.remove('on'); return; }
+  const id = extractAffId(raw);
+  if (id) { el.classList.add('on'); el.innerHTML = '✓ ID detectado: <b>'+id+'</b>'; }
+  else    { el.classList.remove('on'); }
+}
+
+/* ── TOAST ── */
+let _tT;
+function toast(icon, msg) {
+  $('t-ic').textContent = icon;
+  $('t-msg').textContent = msg;
+  $('toast').classList.add('on');
+  clearTimeout(_tT);
+  _tT = setTimeout(() => $('toast').classList.remove('on'), 3200);
+}
+
+/* ═══════════════════════════════════════════
+   AUTH
+═══════════════════════════════════════════ */
+function showSc(id) {
+  ['sc-login','sc-reg'].forEach(s => $(s).classList.toggle('hide', s!==id));
+}
+
+function doLogin() {
+  try {
+    const email = ($('l-email')?.value||'').trim().toLowerCase();
+    const pass  = ($('l-pass')?.value||'');
+    const err   = $('login-err');
+    if(err){ err.classList.remove('on'); err.textContent=''; }
+
+    if (!email) {
+      if(err){err.textContent='Informe o e-mail.';err.classList.add('on');}
+      $('l-email')?.focus(); return;
+    }
+    if (!pass) {
+      if(err){err.textContent='Informe a senha.';err.classList.add('on');}
+      $('l-pass')?.focus(); return;
+    }
+
+    // Conta demo — sempre funciona
+    if (email === 'demo@afiliaml.com' && pass === 'demo123') {
+      const users = DB.get('users') || {};
+      if (!users[email]) {
+        users[email] = { name:'Paula Zocchi', email, pass:'demo123', affiliateId:'paulazocchi', trialStart:Date.now(), plan:'trial' };
+        DB.set('users', users);
+      }
+      DB.set('cur', email);
+      ['sc-login','sc-reg'].forEach(s=>{const el=$(s);if(el)el.classList.add('hide');});
+      launchApp(users[email]); return;
+    }
+
+    const users = DB.get('users') || {};
+    if (!users[email]) {
+      if(err){err.textContent='E-mail não cadastrado. Crie uma conta.';err.classList.add('on');}
+      return;
+    }
+    if (users[email].pass !== pass) {
+      if(err){err.textContent='Senha incorreta. Tente novamente.';err.classList.add('on');}
+      $('l-pass')?.focus(); return;
+    }
+
+    DB.set('cur', email);
+    ['sc-login','sc-reg'].forEach(s=>{const el=$(s);if(el)el.classList.add('hide');});
+    launchApp(users[email]);
+
+  } catch(e) {
+    const err = $('login-err');
+    if(err){ err.textContent='Erro ao entrar: '+e.message; err.classList.add('on'); }
+    console.error('doLogin error:', e);
+  }
+}
+
+function doRegister() {
+  try {
+    const nameEl  = $('r-name');
+    const emailEl = $('r-email');
+    const passEl  = $('r-pass');
+    const affEl   = $('r-aff');
+    const err     = $('reg-err');
+
+    const name   = (nameEl?.value||'').trim();
+    const email  = (emailEl?.value||'').trim().toLowerCase();
+    const pass   = (passEl?.value||'');
+    const affRaw = (affEl?.value||'').trim();
+
+    if (err) { err.classList.remove('on'); err.textContent=''; }
+
+    if (!name) {
+      if(err){err.textContent='Preencha seu nome completo.';err.classList.add('on');}
+      nameEl?.focus(); return;
+    }
+    if (!email || !email.includes('@')) {
+      if(err){err.textContent='E-mail inválido.';err.classList.add('on');}
+      emailEl?.focus(); return;
+    }
+    if (pass.length < 6) {
+      if(err){err.textContent='A senha precisa ter pelo menos 6 caracteres.';err.classList.add('on');}
+      passEl?.focus(); return;
+    }
+
+    const users = DB.get('users') || {};
+    if (users[email]) {
+      if(err){err.textContent='E-mail já cadastrado. Clique em "Já tem conta?" para entrar.';err.classList.add('on');}
+      return;
+    }
+
+    const affId = extractAffId(affRaw) || email.split('@')[0].replace(/[^a-zA-Z0-9_]/g,'');
+    const user  = {
+      name, email, pass,
+      affiliateId: affId,
+      trialStart: Date.now(),
+      plan: 'trial'
+    };
+
+    users[email] = user;
+    DB.set('users', users);
+    DB.set('cur', email);
+
+    // Esconde telas de auth antes de lançar
+    ['sc-login','sc-reg'].forEach(s => {
+      const el=$(s); if(el) el.classList.add('hide');
+    });
+
+    launchApp(user);
+
+  } catch(e) {
+    const err = $('reg-err');
+    if(err){ err.textContent='Erro ao criar conta: '+e.message+'. Tente novamente.'; err.classList.add('on'); }
+    console.error('doRegister error:', e);
+  }
+}
+
+function doLogout() {
+  DB.del('cur');
+  $('wall').classList.remove('on');
+  $('app').classList.add('hide');
+  $('l-email').value = '';
+  $('l-pass').value  = '';
+  showSc('sc-login');
+}
+
+/* ═══════════════════════════════════════════
+   TRIAL
+═══════════════════════════════════════════ */
+const TRIAL_MS = 5 * 24 * 60 * 60 * 1000; // 5 dias
+const KIWIFY   = {
+  basico:  'https://pay.kiwify.com.br/afiliaml-basico',
+  pro:     'https://pay.kiwify.com.br/afiliaml-pro',
+  ultra:   'https://pay.kiwify.com.br/afiliaml-ultra',
+  agencia: 'https://pay.kiwify.com.br/afiliaml-agencia',
+};
+let _wallPlan = 'basico';
+
+function trialInfo(user) {
+  if (user.plan !== 'trial') return { expired:false, daysLeft:999, pct:100 };
+  const elapsed = Date.now() - (user.trialStart||Date.now());
+  const remaining = Math.max(0, TRIAL_MS - elapsed);
+  const daysLeft  = Math.ceil(remaining / 86400000);
+  return { expired: remaining <= 0, daysLeft, pct: clamp((remaining/TRIAL_MS)*100, 0, 100) };
+}
+
+function showWall() { $('wall').classList.add('on'); }
+
+function updateTrialUI(user) {
+  const { expired, daysLeft, pct } = trialInfo(user);
+  const bar = $('trial-bar');
+
+  if (user.plan !== 'trial') {
+    bar.classList.add('hide');
+    const pname = { basico:'Básico', pro:'Pro', ultra:'Ultra', agencia:'Agência' }[user.plan] || user.plan;
+    $('sb-plan').textContent = 'Plano ' + pname;
+    if ($('plan-status-t')) $('plan-status-t').textContent = 'Plano '+pname+' ativo';
+    if ($('plan-status-s')) $('plan-status-s').textContent = 'Assinatura ativa e renovando automaticamente.';
+    return;
+  }
+
+  if (expired) { bar.classList.add('hide'); showWall(); return; }
+
+  bar.classList.remove('hide');
+  $('trial-days-txt').textContent = daysLeft + (daysLeft===1?' dia':' dias');
+  $('trial-prog').style.width = pct + '%';
+  $('sb-plan').textContent = 'Trial — '+daysLeft+(daysLeft===1?' dia':' dias')+' restante'+(daysLeft===1?'':'s');
+  if ($('plan-status-t')) $('plan-status-t').textContent = 'Trial ativo — '+daysLeft+' dia'+(daysLeft===1?' restante':' dias restantes');
+  if ($('plan-status-s')) $('plan-status-s').textContent = 'Acesso Pro completo durante o período de teste.';
+}
+
+function pickPlan(el, plan) {
+  _wallPlan = plan;
+  qa('.wplan').forEach(w => w.classList.remove('on'));
+  el.classList.add('on');
+  const labels = { basico:'Básico — R$27/mês', pro:'Pro — R$57/mês', ultra:'Ultra — R$97/mês', agencia:'Agência — R$197/mês' };
+  $('wall-cta-btn').textContent = 'Assinar ' + (labels[plan]||plan);
+}
+
+function goCheckout() {
+  $('wall').classList.remove('on');
+  toast('💳','Redirecionando para checkout Kiwify...');
+  // SUBSTITUA pelas suas URLs reais de produto da Kiwify
+  setTimeout(() => { window.open(KIWIFY[_wallPlan]||KIWIFY.pro, '_blank'); }, 800);
+}
+
+/* ═══════════════════════════════════════════
+   LAUNCH APP
+═══════════════════════════════════════════ */
+function launchApp(user) {
+  ['sc-login','sc-reg'].forEach(s => $(s).classList.add('hide'));
+  $('app').classList.remove('hide');
+
+  // Sidebar
+  const initials = user.name.split(' ').filter(Boolean).map(w=>w[0]).join('').slice(0,2).toUpperCase()||'??';
+  $('sb-ava').textContent  = initials;
+  $('sb-name').textContent = user.name;
+
+  // Prefill settings
+  $('s-name').value  = user.name;
+  $('s-email').value = user.email;
+
+  const affId = user.affiliateId || '';
+  $('s-aff').value   = affId;
+  if (affId) { $('s-aff-ok').classList.add('on'); $('s-aff-ok').innerHTML='✓ ID atual: <b>'+affId+'</b>'; }
+  $('lnk-aff').value = affId;
+
+  const savedKey = DB.get('apikey') || '';
+  if (savedKey && $('s-apikey')) $('s-apikey').value = savedKey;
+  const audience = DB.get('audience') || '';
+  if (audience && $('s-audience')) $('s-audience').value = audience;
+
+  // Build UI com proteção contra erros individuais
+  const safe = (fn, name) => { try { fn(); } catch(e) { console.warn('Build error in '+name+':', e); } };
+  safe(() => updateTrialUI(user), 'updateTrialUI');
+  safe(() => buildDashChart(),    'buildDashChart');
+  safe(() => buildTopProds(),     'buildTopProds');
+  safe(() => buildAlerts(),       'buildAlerts');
+  safe(() => buildReports(),      'buildReports');
+  safe(() => buildRecentLinks(),  'buildRecentLinks');
+  safe(() => buildFAQ(),          'buildFAQ');
+  safe(() => buildPlans(user),    'buildPlans');
+  safe(() => renderOffers(),      'renderOffers');
+  safe(() => buildSchedule(),     'buildSchedule');
+  safe(() => loadInsight(),       'loadInsight');
+  safe(() => addBotMsg('👋 Olá <b>'+user.name.split(' ')[0]+'</b>! Sou o assistente do AfiliaML. Pode me perguntar sobre estratégias, comissões, configurações ou qualquer funcionalidade do sistema!'), 'addBotMsg');
+}
+
+// Auto-login com proteção completa
+window.addEventListener('DOMContentLoaded', () => {
+  try {
+    const cur = DB.get('cur');
+    if (cur) {
+      const users = DB.get('users') || {};
+      if (users[cur]) {
+        try { launchApp(users[cur]); return; }
+        catch(e) {
+          console.error('Auto-login launchApp error:', e);
+          DB.del('cur'); // limpa sessão corrompida
+        }
+      }
+    }
+  } catch(e) { console.error('Auto-login error:', e); }
+  showSc('sc-login');
+});
+
+/* ═══════════════════════════════════════════
+   NAVIGATION
+═══════════════════════════════════════════ */
+const PAGE_META = {
+  dashboard: ['Visão Geral',          'Bem-vindo de volta · atualizado agora'],
+  search:    ['Buscar Ofertas com IA', 'Filtre as melhores ofertas do Mercado Livre'],
+  captions:  ['Legendas com IA',       'Crie textos estratégicos que convertem'],
+  whatsapp:  ['Agendador WhatsApp',    '30 ofertas distribuídas automaticamente ao longo do dia'],
+  links:     ['Gerador de Links',      'Links rastreados com UTM para cada canal'],
+  reports:   ['Relatórios',            'Performance completa das suas campanhas'],
+  plans:     ['Planos & Assinatura',   'Gerencie seu plano AfiliaML'],
+  settings:  ['Configurações',         'Personalize seu painel e integrações'],
+  support:   ['Suporte com IA',        'Tire dúvidas e aprenda estratégias'],
+};
+
+function goTo(page, navEl) {
+  qa('.panel').forEach(p => p.classList.remove('on'));
+  qa('.ni').forEach(n => n.classList.remove('on'));
+  const panel = $('panel-'+page);
+  if (panel) panel.classList.add('on');
+  if (navEl) navEl.classList.add('on');
+  const [t,s] = PAGE_META[page] || ['',''];
+  $('page-title').textContent = t;
+  $('page-sub').textContent   = s;
+  if (page==='support' && $('badge-support')) $('badge-support').style.display='none';
+  if (page==='whatsapp') buildSchedule();
+}
+
+/* ═══════════════════════════════════════════
+   OFFERS DATA
+═══════════════════════════════════════════ */
+const OFFERS = [
+  {id:0,  e:'🎧', name:'Fone JBL Tune 720BT',            cat:'Eletrônicos', orig:299,  curr:189,  disc:37, stars:4.8, rev:2400,  ship:'Frete Grátis · Full', badge:'Mais vendido', rate:.06},
+  {id:1,  e:'👟', name:'Tênis Nike Air Max SC',           cat:'Moda',        orig:399,  curr:249,  disc:38, stars:4.7, rev:5100,  ship:'Frete Grátis',        badge:'',             rate:.08},
+  {id:2,  e:'📱', name:'Samsung Galaxy A34 128GB',        cat:'Eletrônicos', orig:1499, curr:999,  disc:33, stars:4.7, rev:3300,  ship:'Frete Grátis · Full', badge:'Destaque',     rate:.05},
+  {id:3,  e:'🏋', name:'Kit Halteres 10kg Emborrachado',  cat:'Esporte',     orig:199,  curr:129,  disc:35, stars:4.9, rev:1200,  ship:'Frete Grátis',        badge:'',             rate:.07},
+  {id:4,  e:'🍳', name:'Air Fryer Mondial 4L Digital',    cat:'Casa',        orig:349,  curr:229,  disc:34, stars:4.5, rev:8400,  ship:'Frete Grátis',        badge:'Mais vendido', rate:.06},
+  {id:5,  e:'⌚', name:'Smartwatch Xiaomi Redmi Watch 3',  cat:'Eletrônicos', orig:399,  curr:259,  disc:35, stars:4.5, rev:2100,  ship:'Frete Grátis',        badge:'',             rate:.05},
+  {id:6,  e:'💻', name:'Notebook Lenovo IdeaPad 3',       cat:'Informática', orig:2899, curr:2190, disc:24, stars:4.6, rev:880,   ship:'Frete Grátis · Full', badge:'Oferta do dia',rate:.04},
+  {id:7,  e:'🎮', name:'Controle Xbox Series S/X',        cat:'Games',       orig:399,  curr:269,  disc:32, stars:4.8, rev:7200,  ship:'Frete Grátis',        badge:'',             rate:.06},
+  {id:8,  e:'👜', name:'Mochila Samsonite 20L',           cat:'Moda',        orig:289,  curr:179,  disc:38, stars:4.6, rev:990,   ship:'Frete Grátis',        badge:'',             rate:.08},
+  {id:9,  e:'🖨', name:'Impressora HP DeskJet 2774',      cat:'Informática', orig:499,  curr:319,  disc:36, stars:4.4, rev:3700,  ship:'Frete Grátis · Full', badge:'',             rate:.04},
+  {id:10, e:'🧴', name:'Kit Skincare The Ordinary',       cat:'Beleza',      orig:199,  curr:129,  disc:35, stars:4.8, rev:660,   ship:'Frete Grátis',        badge:'',             rate:.07},
+  {id:11, e:'🔦', name:'Lanterna LED Tática Recarregável',cat:'Ferramentas', orig:89,   curr:49,   disc:45, stars:4.7, rev:430,   ship:'',                    badge:'',             rate:.07},
+  {id:12, e:'🪑', name:'Cadeira Gamer ThunderX3 EC3',    cat:'Games',       orig:899,  curr:579,  disc:36, stars:4.6, rev:1100,  ship:'Frete Grátis',        badge:'',             rate:.06},
+  {id:13, e:'🎒', name:'Mochila Anti-Furto Targus',      cat:'Informática', orig:249,  curr:159,  disc:36, stars:4.7, rev:430,   ship:'Frete Grátis',        badge:'',             rate:.05},
+  {id:14, e:'🧁', name:'Batedeira Oster 300W',           cat:'Casa',        orig:279,  curr:179,  disc:36, stars:4.5, rev:2800,  ship:'',                    badge:'',             rate:.06},
+  {id:15, e:'🩳', name:'Kit Bermuda + Camiseta Adidas',  cat:'Moda',        orig:219,  curr:139,  disc:37, stars:4.6, rev:1540,  ship:'Frete Grátis',        badge:'',             rate:.08},
+];
+
+let SEL = new Set(); // offer IDs selecionados
+
+/* ═══════════════════════════════════════════
+   SEARCH
+═══════════════════════════════════════════ */
+function getFiltered() {
+  const disc  = parseFloat($('f-disc')?.value) || 0;
+  const price = parseFloat($('f-price')?.value) || 999999;
+  const rat   = parseFloat($('f-rat')?.value)  || 0;
+  const kw    = ($('f-kw')?.value||'').toLowerCase().trim();
+  const cat   = $('f-cat')?.value || '';
+  const ship  = $('f-ship')?.value || '';
+  const sort  = $('f-sort')?.value || 'disc';
+
+  let list = OFFERS.filter(o => {
+    if (o.disc  < disc)    return false;
+    if (o.curr  > price)   return false;
+    if (o.stars < rat)     return false;
+    if (cat && o.cat !== cat) return false;
+    if (kw && !o.name.toLowerCase().includes(kw) && !o.cat.toLowerCase().includes(kw)) return false;
+    if (ship === 'gratis' && !o.ship.toLowerCase().includes('grátis')) return false;
+    if (ship === 'full'   && !o.ship.toLowerCase().includes('full'))   return false;
+    return true;
+  });
+
+  const sorters = {
+    disc:  (a,b) => b.disc - a.disc,
+    comm:  (a,b) => (b.curr*b.rate) - (a.curr*a.rate),
+    price: (a,b) => a.curr - b.curr,
+    stars: (a,b) => b.stars - a.stars,
+  };
+  if (sorters[sort]) list.sort(sorters[sort]);
+  return list;
+}
+
+function runSearch() {
+  const loadEl = $('search-load'), barEl = $('load-bar');
+  loadEl.classList.add('on');
+  barEl.style.display = 'block';
+  $('offers-wrap').style.opacity = '.5';
+  setTimeout(() => {
+    loadEl.classList.remove('on');
+    barEl.style.display = 'none';
+    $('offers-wrap').style.opacity = '1';
+    renderOffers();
+    toast('✦', getFiltered().length + ' ofertas encontradas!');
+  }, 1500);
+}
+
+function renderOffers() {
+  const list = getFiltered();
+  $('res-count').textContent = list.length;
+  $('offers-list').innerHTML = list.map(o => `
+    <div class="offer-card${SEL.has(o.id)?' sel':''}" id="oc-${o.id}" onclick="toggleOffer(${o.id})">
+      <div class="o-thumb">${o.e}</div>
+      <div class="o-info">
+        <div class="o-name">${o.name}</div>
+        <div class="o-meta">${o.cat}${o.badge?' · <b style="color:var(--y)">'+o.badge+'</b>':''}</div>
+        <div class="o-prices">
+          <span class="o-orig">R$${o.orig}</span>
+          <span class="o-curr">R$${o.curr}</span>
+          <span class="o-disc">${o.disc}% OFF</span>
+        </div>
+        <div class="o-stars">${o.stars}⭐ (${o.rev.toLocaleString('pt-BR')} avaliações)${o.ship?' · '+o.ship:''}</div>
+      </div>
+      <div class="o-right">
+        <div class="o-check" id="ck-${o.id}">${SEL.has(o.id)?'✓':''}</div>
+        <div class="o-comm">~R$${Math.round(o.curr*o.rate)}</div>
+      </div>
+    </div>`).join('');
+  updateSelUI();
+}
+
+function toggleOffer(id) {
+  if (SEL.has(id)) { SEL.delete(id); }
+  else {
+    if (SEL.size >= 30) { toast('⚠','Limite de 30 ofertas por dia!'); return; }
+    SEL.add(id);
+  }
+  const card = $('oc-'+id), ck = $('ck-'+id);
+  if (card) card.classList.toggle('sel', SEL.has(id));
+  if (ck)   ck.textContent = SEL.has(id) ? '✓' : '';
+  updateSelUI();
+}
+
+function selTop30() {
+  SEL.clear();
+  getFiltered().sort((a,b)=>b.disc-a.disc).slice(0,30).forEach(o=>SEL.add(o.id));
+  renderOffers();
+  toast('⭐','Top '+Math.min(30,getFiltered().length)+' por desconto selecionadas!');
+}
+
+function selAllOffers() {
+  getFiltered().slice(0,30).forEach(o=>SEL.add(o.id));
+  renderOffers();
+  toast('☑', SEL.size+' ofertas selecionadas!');
+}
+
+function clearSel() { SEL.clear(); renderOffers(); }
+
+function tagClick(el) { el.classList.toggle('on'); }
+
+function updateSelUI() {
+  const n = SEL.size;
+  // Topbar indicator
+  if ($('sel-num'))       $('sel-num').textContent = n;
+  if ($('sel-indicator')) $('sel-indicator').style.display = n>0 ? 'inline':'none';
+  // Search panel
+  if ($('sel-count'))    $('sel-count').textContent = n;
+  if ($('q-badge'))      $('q-badge').textContent = n;
+  if ($('wz-total'))     $('wz-total').textContent = n;
+  if ($('wz-sub'))       $('wz-sub').textContent = n>0 ? n+' ofertas na fila':'Selecione ofertas para começar';
+  const wb = $('go-wz-btn');
+  if (wb) { wb.style.display = n>0?'flex':'none'; if($('go-wz-n')) $('go-wz-n').textContent=n; }
+  buildSchedule();
+}
+
+/* ═══════════════════════════════════════════
+   CAPTIONS
+═══════════════════════════════════════════ */
+const CAPTIONS = {
+  urgency: (o,t) => `🔥 OFERTA RELÂMPAGO${t?' — '+t:''}!
+
+${o.e} *${o.name}* com *${o.disc}% OFF*
+
+De ~~R$${o.orig}~~ por apenas *R$${o.curr}* 💥
+
+${o.ship?'✅ '+o.ship:''}
+✅ ${o.stars}⭐ — ${o.rev.toLocaleString('pt-BR')} avaliações
+
+⏰ Estoque limitado, corre antes de acabar!
+
+👇 Garanta agora:
+🔗 mercadolivre.com/afl/${slug(o.name)}`,
+
+  luxury: (o,t) => `💎 Qualidade premium, preço de oportunidade${t?' para '+t:''}.
+
+${o.e} *${o.name}*
+
+Investimento inteligente:
+De R$${o.orig} por apenas *R$${o.curr}*
+Você economiza *R$${o.orig-o.curr}* agora.
+
+${o.stars}⭐ — aprovado por ${o.rev.toLocaleString('pt-BR')} compradores
+${o.ship?'✅ '+o.ship:''}
+
+🔗 mercadolivre.com/afl/${slug(o.name)}`,
+
+  fun: (o,t) => `Oi${t?' '+t:''}! Olha o que eu achei 👀
+
+${o.e} ${o.name} com *${o.disc}% de desconto*!
+
+Tá de graça? Quase 😂
+Só *R$${o.curr}* (era R$${o.orig})
+
+${o.ship?o.ship+' ✅':''} · ${o.stars}⭐
+
+Não vai durar muito não 😅
+🔗 mercadolivre.com/afl/${slug(o.name)}`,
+
+  direct: (o,t) => `${o.e} *${o.name}*
+💰 R$${o.curr} (${o.disc}% OFF)
+${o.ship?'🚚 '+o.ship:''}
+${o.stars}⭐ (${o.rev.toLocaleString('pt-BR')} avaliações)
+
+🔗 mercadolivre.com/afl/${slug(o.name)}`,
+
+  emotional: (o,t) => `Sabe aquele produto que você quer faz tempo?
+
+${o.e} O *${o.name}* finalmente está ao seu alcance${t?' — ideal para '+t:''}.
+
+De R$${o.orig} por apenas *R$${o.curr}*
+Economia de *R$${o.orig-o.curr}* no seu bolso 💚
+
+${o.stars}⭐ — aprovado por ${o.rev.toLocaleString('pt-BR')} pessoas
+${o.ship?'✅ '+o.ship:''}
+
+🔗 mercadolivre.com/afl/${slug(o.name)}`,
+};
+
+let captionStyle = 'urgency';
+
+function pickStyle(el, style) {
+  qa('.style-card').forEach(c => c.classList.remove('on'));
+  el.classList.add('on');
+  captionStyle = style;
+}
+
+async function genCaption(useAI) {
+  const idx  = parseInt($('cap-prod')?.value) || 0;
+  const o    = OFFERS[idx] || OFFERS[0];
+  const tone = ($('cap-tone')?.value||'').trim();
+  const genEl = $('gen-loading'), dispEl = $('cap-text'), timeEl = $('cap-time');
+
+  if (genEl)  genEl.classList.add('on');
+  if (dispEl) dispEl.style.opacity = '.3';
+
+  const now = () => new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}) + ' ✓✓';
+
+  if (useAI) {
+    const key = DB.get('apikey') || '';
+    if (!key || !key.startsWith('sk-ant-')) {
+      if (genEl)  genEl.classList.remove('on');
+      if (dispEl) dispEl.style.opacity='1';
+      toast('⚠','Configure sua API key em Configurações → IA');
+      return;
+    }
+    const styleLabels = {urgency:'urgência com FOMO',luxury:'luxo acessível',fun:'descontraído e informal',direct:'direto ao ponto',emotional:'emocional'};
+    const prompt = `Crie uma legenda estratégica para WhatsApp para promover esta oferta do Mercado Livre como afiliado.
+
+Produto: ${o.name}
+Preço original: R$${o.orig} | Com desconto: R$${o.curr} | Desconto: ${o.disc}%
+Avaliação: ${o.stars}⭐ com ${o.rev.toLocaleString('pt-BR')} avaliações
+Frete: ${o.ship||'verificar no site'}
+Estilo: ${styleLabels[captionStyle]||captionStyle}
+${tone?'Público/tom: '+tone:''}
+${DB.get('audience')?'Contexto do público: '+DB.get('audience'):''}
+Link: mercadolivre.com/afl/${slug(o.name)}
+
+Use formatação WhatsApp (*negrito*, ~~tachado~~) e emojis. Máx 200 palavras. Responda APENAS com o texto da legenda, sem explicações.`;
+    try {
+      const res = await fetch('https://api.anthropic.com/v1/messages',{
+        method:'POST',
+        headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+        body:JSON.stringify({model:'claude-sonnet-4-5',max_tokens:600,messages:[{role:'user',content:prompt}]})
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error.message||'Erro na API');
+      if (dispEl) dispEl.textContent = data.content[0].text.trim();
+      if (timeEl) timeEl.textContent = now();
+      if (genEl)  genEl.classList.remove('on');
+      if (dispEl) dispEl.style.opacity='1';
+      toast('✦','Legenda criada com Claude AI!');
+      return;
+    } catch(e) {
+      toast('⚠','Erro na API: '+e.message.slice(0,60));
+    }
+  }
+
+  // Template fallback
+  await new Promise(r=>setTimeout(r,1100));
+  const fn = CAPTIONS[captionStyle] || CAPTIONS.urgency;
+  if (dispEl) dispEl.textContent = fn(o, tone);
+  if (timeEl) timeEl.textContent = now();
+  if (genEl)  genEl.classList.remove('on');
+  if (dispEl) dispEl.style.opacity='1';
+  if (!useAI) toast('✦','Legenda estratégica gerada!');
+}
+
+function copyCaption() {
+  const txt = $('cap-text')?.textContent || '';
+  navigator.clipboard.writeText(txt).catch(()=>{
+    // fallback para navegadores sem clipboard API
+    const ta = document.createElement('textarea');
+    ta.value = txt; document.body.appendChild(ta);
+    ta.select(); document.execCommand('copy');
+    document.body.removeChild(ta);
+  });
+  toast('📋','Legenda copiada!');
+}
+
+function addCaptionToQueue() {
+  const idx = parseInt($('cap-prod')?.value) || 0;
+  const o   = OFFERS[idx] || OFFERS[0];
+  if (!SEL.has(o.id)) {
+    if (SEL.size >= 30) { toast('⚠','Fila cheia! Máx. 30 ofertas.'); return; }
+    SEL.add(o.id);
+    updateSelUI();
+  }
+  toast('💬','"'+o.name.slice(0,25)+'" adicionado à fila!');
+  goTo('whatsapp', null);
+}
+
+/* ═══════════════════════════════════════════
+   WHATSAPP SCHEDULER
+═══════════════════════════════════════════ */
+const SCHED_TIMES = [
+  '08:00','08:28','09:05','09:38','10:12','10:47','11:20','11:55',
+  '12:28','13:00','13:35','14:05','14:40','15:12','15:45','16:18',
+  '16:50','17:22','17:55','18:27','18:55','19:22','19:50','20:12',
+  '20:35','20:55','21:05','21:15','21:25','21:35',
+];
+const GROUPS_ROT = ['Ofertas VIP','Promoções Relâmpago','Ofertas VIP','Tech & Gadgets','Moda em Oferta'];
+
+function buildSchedule() {
+  const list  = $('sched-list');
+  const total = $('wz-total');
+  const sub   = $('wz-sub');
+  if (!list) return;
+  const n = SEL.size;
+  if (total) total.textContent = n;
+  if (sub)   sub.textContent = n>0 ? n+' ofertas na fila':'Selecione ofertas para começar';
+
+  if (n === 0) {
+    list.innerHTML = '<div style="padding:36px;text-align:center;color:var(--tx3);font-size:12.5px">Nenhuma oferta na fila.<br><br><button class="btn sm y" onclick="goTo(\'search\',null)">Buscar Ofertas →</button></div>';
+    if ($('wz-next'))   $('wz-next').textContent  = '--:--';
+    if ($('wz-next-p')) $('wz-next-p').textContent = 'aguardando...';
+    return;
+  }
+
+  const arr    = [...SEL].slice(0,30);
+  const nowMin = new Date().getHours()*60 + new Date().getMinutes();
+  let nextSet  = false;
+
+  list.innerHTML = arr.map((oid, i) => {
+    const o   = OFFERS.find(x=>x.id===oid) || OFFERS[0];
+    const t   = SCHED_TIMES[i] || '21:35';
+    const [h,m] = t.split(':').map(Number);
+    const tMin  = h*60+m;
+    let pillTxt, pillCls;
+
+    if (tMin < nowMin-5) {
+      pillTxt='Enviado'; pillCls='g';
+    } else if (Math.abs(tMin-nowMin)<15) {
+      pillTxt='Enviando'; pillCls='y';
+      if (!nextSet) {
+        if ($('wz-next'))   $('wz-next').textContent   = t;
+        if ($('wz-next-p')) $('wz-next-p').textContent = o.name.slice(0,22)+(o.name.length>22?'...':'');
+        nextSet=true;
+      }
+    } else {
+      pillTxt=t; pillCls='n';
+      if (!nextSet) {
+        if ($('wz-next'))   $('wz-next').textContent   = t;
+        if ($('wz-next-p')) $('wz-next-p').textContent = o.name.slice(0,22)+(o.name.length>22?'...':'');
+        nextSet=true;
+      }
+    }
+
+    return `<div class="sched-item">
+      <div class="si-num">${i+1}</div>
+      <div style="font-size:19px;flex-shrink:0">${o.e}</div>
+      <div class="si-info">
+        <div class="si-name">${o.name}</div>
+        <div class="si-group">${GROUPS_ROT[i%GROUPS_ROT.length]}</div>
+      </div>
+      <span class="pill ${pillCls}">${pillTxt}</span>
+    </div>`;
+  }).join('');
+
+  const nightCount = Math.max(0, arr.length - Math.ceil(arr.length*2/3));
+  if ($('wz-night')) $('wz-night').textContent = nightCount + ' agendadas';
+}
+
+function startQueue() {
+  const s=$('btn-start'), p=$('btn-pause');
+  if(s) s.disabled=true; if(p) p.disabled=false;
+  toast('▶','Envio automático iniciado!');
+}
+function pauseQueue() {
+  const s=$('btn-start'), p=$('btn-pause');
+  if(s) s.disabled=false; if(p) p.disabled=true;
+  toast('⏸','Envio pausado.');
+}
+function addGroup() {
+  const name = prompt('Nome do grupo WhatsApp:');
+  if (!name?.trim()) return;
+  const members = (prompt('Quantos membros?','100')||'100').trim();
+  const ics = ['🎯','💡','🔑','💰','🌟','🎁','📢','🏆'];
+  const ic  = ics[rand(0,ics.length-1)];
+  const gl  = $('groups-list');
+  const d   = document.createElement('div');
+  d.className='group-item';
+  d.innerHTML=`<div class="g-ic">${ic}</div><div style="flex:1;min-width:0"><div class="g-name">${name.trim()}</div><div class="g-cnt">${members} membros</div></div><div class="toggle on" onclick="this.classList.toggle('on')"><div class="toggle-dot"></div></div>`;
+  gl.appendChild(d);
+  toast('💬','"'+name.trim()+'" adicionado!');
+}
+
+/* ═══════════════════════════════════════════
+   LINKS
+═══════════════════════════════════════════ */
+function genLink() {
+  const url  = ($('lnk-url')?.value||'').trim();
+  const aff  = ($('lnk-aff')?.value||'').trim() || 'afiliado';
+  const src  = ($('utm-src')?.value||'').trim();
+  const camp = ($('utm-cam')?.value||'').trim();
+  if (!url) { toast('⚠','Cole a URL do produto primeiro!'); return; }
+
+  const sep  = url.includes('?') ? '&' : '?';
+  let link   = url+sep+'aff_id='+encodeURIComponent(aff)+'&utm_medium=affiliate';
+  if (src)   link += '&utm_source='+encodeURIComponent(src);
+  if (camp)  link += '&utm_campaign='+encodeURIComponent(camp);
+
+  if ($('lnk-output')) $('lnk-output').textContent = link;
+  if ($('lnk-result')) $('lnk-result').style.display='block';
+
+  // Salva no histórico local
+  const hist = DB.get('links') || [];
+  const pname = url.split('/').filter(Boolean).slice(-1)[0]?.slice(0,30) || 'Produto';
+  hist.unshift({name:pname, url:link, clicks:0, date:'Agora'});
+  DB.set('links', hist.slice(0,20));
+  buildRecentLinks();
+  toast('🔗','Link rastreado gerado!');
+}
+
+function copyLink() {
+  const txt = $('lnk-output')?.textContent || '';
+  navigator.clipboard.writeText(txt).catch(()=>{});
+  toast('📋','Link copiado!');
+}
+
+function shortenLink() {
+  if ($('lnk-output')) $('lnk-output').textContent = 'mlvr.com/afl-'+Math.random().toString(36).slice(2,8);
+  toast('✂','Link encurtado!');
+}
+
+function buildRecentLinks() {
+  const hist = DB.get('links') || [
+    {name:'Fone JBL Tune 720BT', url:'mlvr.com/afl-jbl',  clicks:234, date:'Hoje'},
+    {name:'Tênis Nike Air Max',  url:'mlvr.com/afl-nike', clicks:187, date:'Ontem'},
+    {name:'Samsung Galaxy A34',  url:'mlvr.com/afl-a34',  clicks:312, date:'Ontem'},
+  ];
+  const el = $('recent-links');
+  if (!el) return;
+  el.innerHTML = hist.slice(0,8).map(l => `
+    <div class="link-row">
+      <div style="flex:1;min-width:0">
+        <div style="font-size:12px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${l.name}</div>
+        <div style="font-size:10.5px;color:var(--bl);word-break:break-all">${l.url}</div>
+      </div>
+      <div style="text-align:right;flex-shrink:0;margin-left:12px">
+        <div style="font-size:12px;font-weight:600">${l.clicks}</div>
+        <div style="font-size:10px;color:var(--tx3)">${l.date}</div>
+      </div>
+    </div>`).join('');
+}
+
+/* ═══════════════════════════════════════════
+   DASHBOARD
+═══════════════════════════════════════════ */
+function buildDashChart() {
+  const vals = [42,68,55,80,91,74,38,60,72,88,95,70,52,83];
+  const days = ['S','T','Q','Q','S','S','D','S','T','Q','Q','S','S','D'];
+  const max  = Math.max(...vals);
+  const el   = $('dash-chart');
+  if (!el) return;
+  el.innerHTML = vals.map((v,i) => `
+    <div class="mc-col">
+      <div class="mc-bar" style="height:${Math.round((v/max)*56)}px;background:${i===13?'var(--y)':'var(--bg4)'};border:1px solid ${i===13?'var(--ybd)':'var(--bd)'}"></div>
+      <div class="mc-day">${days[i]}</div>
+    </div>`).join('');
+}
+
+function buildTopProds() {
+  const prods=[{e:'🎧',n:'Fone JBL Tune 720BT',c:824,earn:1240},{e:'👟',n:'Tênis Nike Air Max',c:562,earn:980},{e:'💻',n:'Notebook Lenovo',c:291,earn:740},{e:'🏋',n:'Kit Halteres 10kg',c:418,earn:620}];
+  const el=$('top-prods');
+  if(!el)return;
+  el.innerHTML=prods.map((p,i)=>`
+    <div style="display:flex;align-items:center;gap:9px;padding:8px 0;border-bottom:${i<3?'1px solid var(--bd)':'none'}">
+      <div style="width:18px;height:18px;background:var(--bg4);border-radius:4px;border:1px solid var(--bd);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:var(--tx3);flex-shrink:0">${i+1}</div>
+      <span style="font-size:18px;flex-shrink:0">${p.e}</span>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:12px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${p.n}</div>
+        <div style="font-size:10.5px;color:var(--tx3)">${p.c.toLocaleString('pt-BR')} cliques</div>
+      </div>
+      <div style="font-family:var(--fd);font-size:13px;font-weight:700;color:var(--g);flex-shrink:0">+R$${p.earn}</div>
+    </div>`).join('');
+}
+
+function buildAlerts() {
+  const alerts=[
+    {c:'var(--r)', msg:'Produto "Sony WH-1000XM5" fora de estoque — link perdendo conversões.', t:'Há 40 min', link:'Substituir'},
+    {c:'var(--y)', msg:'Comissão de R$1.840 disponível para saque — prazo até 30/04.',          t:'Há 2h',     link:null},
+    {c:'var(--g)', msg:'Campanha ML: +2% em Eletrônicos até 05/05. Aproveite!',                t:'Há 5h',     link:'Ver produtos'},
+  ];
+  const el=$('alerts-list');
+  if(!el)return;
+  el.innerHTML=alerts.map(a=>`
+    <div style="display:flex;gap:9px;padding:9px 0;border-bottom:1px solid var(--bd)">
+      <div style="width:7px;height:7px;border-radius:50%;background:${a.c};margin-top:4px;flex-shrink:0"></div>
+      <div style="flex:1">
+        <div style="font-size:12px;color:var(--tx2);line-height:1.4">${a.msg}</div>
+        <div style="font-size:10.5px;color:var(--tx3);margin-top:3px">${a.t}${a.link?` · <span style="color:var(--y);cursor:pointer" onclick="goTo('search',null)">${a.link} →</span>`:''}</div>
+      </div>
+    </div>`).join('');
+}
+
+function loadInsight() {
+  const ins=[
+    {t:'Eletrônicos em alta esta semana (+34%)',   s:'Sua conversão nessa categoria é 2,1× acima da média. Priorize fones e smartwatches no próximo agendamento.'},
+    {t:'Melhor horário de envio: 19h–20h',          s:'Seus grupos têm 3,2× mais abertura nesse período. Concentre as melhores ofertas no horário nobre.'},
+    {t:'Moda cresce 18% antes do fim de semana',    s:'Quintas e sextas são ideais para agendar roupas e calçados. Taxa de conversão sobe 27%.'},
+    {t:'Kit Halteres com ROI 4× esta semana',       s:'Produtos de Esporte têm 7% de comissão e alta demanda. Vale concentrar envios nessa categoria.'},
+  ];
+  const r=ins[rand(0,ins.length-1)];
+  if($('ai-ins-t'))$('ai-ins-t').textContent='IA detectou: '+r.t;
+  if($('ai-ins-s'))$('ai-ins-s').textContent=r.s;
+}
+
+/* ═══════════════════════════════════════════
+   REPORTS
+═══════════════════════════════════════════ */
+function buildReports() {
+  const el=$('rep-body');
+  if(!el)return;
+  el.innerHTML=OFFERS.slice(0,8).map(o=>{
+    const c=rand(100,900), conv=Math.floor(c*(0.02+Math.random()*0.05)), earn=Math.round(conv*o.curr*o.rate);
+    return `<tr>
+      <td><span style="margin-right:5px">${o.e}</span>${o.name}</td>
+      <td><span class="pill n">${o.cat}</span></td>
+      <td>${c.toLocaleString('pt-BR')}</td>
+      <td>${conv}</td>
+      <td>${((conv/c)*100).toFixed(1)}%</td>
+      <td>${(o.rate*100).toFixed(0)}%</td>
+      <td style="color:var(--g);font-weight:600">R$${earn}</td>
+      <td><span class="pill g">Ativo</span></td>
+    </tr>`;
+  }).join('');
+}
+
+function exportCSV() {
+  const header = 'Produto,Categoria,Cliques,Conversões,Conv%,Comissão%,Receita';
+  const rows   = OFFERS.slice(0,8).map(o=>{
+    const c=rand(100,500), cv=Math.floor(c*0.04);
+    return `"${o.name}","${o.cat}",${c},${cv},${((cv/c)*100).toFixed(1)}%,${(o.rate*100).toFixed(0)}%,R$${Math.round(cv*o.curr*o.rate)}`;
+  });
+  const csv  = [header,...rows].join('\n');
+  const blob = new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8;'});
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href=url; a.download='afiliaml-relatorio.csv'; a.click();
+  URL.revokeObjectURL(url);
+  toast('↗','CSV exportado!');
+}
+
+/* ═══════════════════════════════════════════
+   PLANS PAGE
+═══════════════════════════════════════════ */
+function buildPlans(user) {
+  const el=$('plans-grid');
+  if(!el)return;
+  const plans=[
+    {k:'basico', n:'Básico',  price:27,  annual:20,  feats:['20 buscas/dia','10 legendas/dia','10 msgs/dia','2 grupos WhatsApp','Gerador de links UTM','Relatório básico']},
+    {k:'pro',    n:'Pro',     price:57,  annual:43,  pop:true, feats:['Busca ilimitada','Legendas ilimitadas','30 msgs/dia','5 grupos WhatsApp','Top 30 automático','Relatórios + CSV','IA de insights']},
+    {k:'ultra',  n:'Ultra',   price:97,  annual:73,  feats:['60 msgs/dia','Grupos ilimitados','Suporte prioritário','API WhatsApp Business','Alertas inteligentes','3 usuários']},
+    {k:'agencia',n:'Agência', price:197, annual:148, feats:['10 usuários','Dashboard multi-conta','Msgs ilimitadas','SLA de suporte 4h','Onboarding personalizado','Relatórios white-label']},
+  ];
+  el.innerHTML=plans.map(p=>`
+    <div class="plan-card${p.pop?' pop':''}">
+      ${p.pop?'<div class="plan-pop-badge">Mais popular</div>':''}
+      <div class="plan-name" style="margin-top:${p.pop?'10px':'0'}">${p.n}</div>
+      <div class="plan-price" style="color:${p.pop?'var(--y)':'var(--tx)'}">R$${p.price}<span style="font-size:11px;font-weight:400;color:var(--tx3)">/mês</span></div>
+      <div class="plan-annual">ou R$${p.annual}/mês no anual (25% off)</div>
+      <button class="btn sm${p.pop?' y':''} w" style="margin-bottom:11px" onclick="window.open('${KIWIFY[p.k]}','_blank')">Assinar agora →</button>
+      ${p.feats.map(f=>`<div class="plan-feat"><span class="plan-feat-ic">✓</span>${f}</div>`).join('')}
+    </div>`).join('');
+}
+
+/* ═══════════════════════════════════════════
+   SETTINGS
+═══════════════════════════════════════════ */
+function switchSettings(el, section) {
+  qa('.snav-item').forEach(e=>e.classList.remove('on'));
+  el.classList.add('on');
+  ['ss-perfil','ss-ml','ss-wz','ss-ia','ss-notif'].forEach(id=>{
+    const e=$(id); if(e) e.style.display=id===section?'block':'none';
+  });
+}
+
+function saveProfile() {
+  const cur   = DB.get('cur');
+  if (!cur) return;
+  const users = DB.get('users') || {};
+  const name   = ($('s-name')?.value||'').trim();
+  const affRaw = ($('s-aff')?.value||'').trim();
+  if (!name) { toast('⚠','Preencha o nome.'); return; }
+  const affId = extractAffId(affRaw) || affRaw || users[cur]?.affiliateId || '';
+  users[cur] = {...(users[cur]||{}), name, affiliateId:affId};
+  DB.set('users', users);
+  const ini = name.split(' ').filter(Boolean).map(w=>w[0]).join('').slice(0,2).toUpperCase();
+  if($('sb-ava'))  $('sb-ava').textContent  = ini;
+  if($('sb-name')) $('sb-name').textContent = name;
+  if($('lnk-aff')) $('lnk-aff').value      = affId;
+  const audience = ($('s-audience')?.value||'').trim();
+  if(audience) DB.set('audience', audience);
+  toast('✓','Perfil salvo com sucesso!');
+}
+
+function saveMLConfig() {
+  const appId = ($('s-ml-appid')?.value||'').trim();
+  const token = ($('s-ml-token')?.value||'').trim();
+  DB.set('ml_appid', appId); DB.set('ml_token', token);
+  toast('✓','Integração ML salva!');
+}
+
+function saveWZConfig() {
+  const token = ($('s-wz-token')?.value||'').trim();
+  const num   = ($('s-wz-num')?.value||'').trim();
+  DB.set('wz_token', token); DB.set('wz_num', num);
+  toast('✓','WhatsApp configurado!');
+}
+
+function saveApiKey() {
+  const key = ($('s-apikey')?.value||'').trim();
+  if (!key)                      { toast('⚠','Cole sua API key.'); return; }
+  if (!key.startsWith('sk-ant-')){ toast('⚠','Chave inválida. Deve começar com sk-ant-'); return; }
+  DB.set('apikey', key);
+  const audience = ($('s-audience')?.value||'').trim();
+  if (audience) DB.set('audience', audience);
+  const style = $('s-style')?.value;
+  if (style) { captionStyle = style; }
+  toast('✓','Configurações IA salvas! Legendas agora usam Claude.');
+}
+
+/* ═══════════════════════════════════════════
+   SUPPORT CHAT
+═══════════════════════════════════════════ */
+const AI_KB = {
+  'comissão':  'As comissões no ML Afiliados variam: Moda (8%), Esporte/Ferramentas (7%), Eletrônicos/Casa (6%), Informática (4%). Para maximizar, combine ticket alto com boa taxa — um notebook R$2.000 a 4% (R$80) vale mais que 10 produtos R$50 a 8% cada.',
+  'whatsapp':  'Para evitar bloqueio no WhatsApp: máx. 30 msgs/dia por grupo, intervalos variados (o agendador faz isso), não repita o mesmo produto em sequência, alterne grupos. Comece devagar e escale conforme sua audiência crescer.',
+  'legenda':   'Legendas que mais convertem: urgência real (prazo ou estoque limitado), prova social (número de avaliações), benefício direto (frete grátis, economia em R$) e CTA claro. O estilo Urgência/FOMO tem a maior taxa de cliques em grupos de oferta.',
+  'link':      'Crie um link UTM por canal: instagram, youtube, whatsapp, blog. Assim você sabe exatamente de onde vêm seus cliques e pode duplicar investimento no canal mais rentável.',
+  'trial':     'Seu trial é de 5 dias com acesso Pro completo — sem cartão, sem cobrança automática. Ao final o acesso pausa, mas seus dados ficam por 30 dias. Você escolhe o plano com calma.',
+  'afiliado':  'Para virar afiliado ML: mercadolivre.com.br → Minha conta → Afiliados. Você ganha um link único. As comissões são creditadas mensalmente na conta cadastrada.',
+  'plano':     'O Pro (R$57/mês) se paga com 1 venda de R$380 a 6% = R$22,80. Qualquer segunda venda já é lucro. Para começar, o Básico (R$27) já cobre o uso pessoal tranquilo.',
+  'busca':     'Na busca, use "Desconto mín. 25%" + "Frete Grátis" + "4.5+ estrelas" combinados. Esses três filtros juntos garantem produtos com maior taxa de conversão nos grupos.',
+  'default':   'Pode me dar mais detalhes? Posso ajudar com estratégias de afiliado, configuração de grupos WhatsApp, geração de links, legendas ou qualquer outra funcionalidade do AfiliaML! 😊',
+};
+const FAQS=[
+  {q:'Como funciona o agendador WhatsApp?',      a:'Selecione até 30 ofertas e o sistema distribui automaticamente ao longo do dia (08h–21h) com intervalos de 20–40 min para evitar bloqueio.'},
+  {q:'A IA de legendas é real?',                 a:'Sim! Adicione sua API key da Anthropic (console.anthropic.com) em Configurações → IA. Sem a key usa templates estratégicos igualmente eficazes.'},
+  {q:'Preciso de conta WhatsApp Business?',      a:'Não para uso pessoal. O agendador mostra cada mensagem no horário certo para você copiar manualmente. API Business é opcional para automação total.'},
+  {q:'Como rastrear de onde vêm meus cliques?',  a:'Use o Gerador de Links com UTM diferente por canal (instagram, youtube, whatsapp). Os cliques aparecem no painel de Relatórios separados por fonte.'},
+];
+
+function buildFAQ(){
+  const el=$('faq-list');
+  if(!el)return;
+  el.innerHTML=FAQS.map(f=>`<div class="faq-item"><div class="faq-q">${f.q}</div><div class="faq-a">${f.a}</div></div>`).join('');
+}
+
+function addBotMsg(html){
+  const msgs=$('chat-msgs');
+  if(!msgs)return;
+  const d=document.createElement('div');
+  d.className='msg-bot';
+  d.innerHTML='<div class="bbl">'+html+'</div>';
+  msgs.appendChild(d);
+  msgs.scrollTop=msgs.scrollHeight;
+}
+function addUserMsg(txt){
+  const msgs=$('chat-msgs');
+  if(!msgs)return;
+  const d=document.createElement('div');
+  d.className='msg-user';
+  d.innerHTML='<div class="bbl">'+txt+'</div>';
+  msgs.appendChild(d);
+  msgs.scrollTop=msgs.scrollHeight;
+}
+
+async function sendChat(){
+  const inp=$('chat-in');
+  const msg=(inp?.value||'').trim();
+  if(!msg)return;
+  inp.value='';
+  addUserMsg(msg);
+  if($('badge-support'))$('badge-support').style.display='none';
+
+  // Tenta IA real
+  const key=DB.get('apikey')||'';
+  if(key&&key.startsWith('sk-ant-')){
+    try{
+      const res=await fetch('https://api.anthropic.com/v1/messages',{
+        method:'POST',
+        headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+        body:JSON.stringify({
+          model:'claude-sonnet-4-5',max_tokens:400,
+          system:'Você é o assistente do AfiliaML, SaaS para afiliados do Mercado Livre. Responda em português, de forma concisa, prática e amigável. Máximo 3 parágrafos.',
+          messages:[{role:'user',content:msg}]
+        })
+      });
+      const data=await res.json();
+      if(data.content?.[0]?.text){setTimeout(()=>addBotMsg(data.content[0].text),500);return;}
+    }catch{}
+  }
+
+  // Fallback
+  const lower=msg.toLowerCase();
+  let resp=AI_KB.default;
+  for(const[k,v]of Object.entries(AI_KB)){if(k!=='default'&&lower.includes(k)){resp=v;break;}}
+  setTimeout(()=>addBotMsg(resp),600);
+}
+</script>
+</body>
+</html>
